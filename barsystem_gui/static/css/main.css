@@ -1,0 +1,83 @@
+/* main.css */
+
+.page {
+	max-width: 1366px;
+	margin: 0 auto;
+	position: relative;
+}
+
+.button.action > div {
+	line-height: 52px;
+}
+
+/*
+html { 
+	margin: 0;
+	padding: 0;
+	outline: 0;
+	background-color: #dff;
+}
+body {
+	font-family: sans-serif;
+	background-color: white;
+	width: 800px; 
+	height: 600px;
+	margin: 0;
+	padding: 0;
+	outline: 0;
+	overflow: hidden;
+}
+*/
+.button-big {
+	border: 2px solid black;
+	border-radius: 5px;
+	cursor: pointer;
+	background-color: #fff;
+	color: #000;
+	margin: 1px;
+	padding: 0 2px;
+	text-decoration: none;
+	width: 150px;
+	height: 60px;
+}
+.button-big:hover {
+	border-color: #ee0;
+}
+
+.button-big.disabled {
+	cursor: default;
+	color: gray;
+	border-color: gray;
+}
+.button-big.disabled:hover {
+	border-color: gray;
+}
+
+.button-big.inline {
+	display: inline-block;
+}
+
+.name {
+	font-weight: bold;
+}
+.money.negative {
+	color: red;
+}
+
+.pagination .button-big {
+	display: inline-block;
+	text-align: center;
+}
+
+.button-big > div {
+	position: relative;
+	top: 50%;
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%)
+}
+
+.total-line .value
+{
+	text-align: right;
+}

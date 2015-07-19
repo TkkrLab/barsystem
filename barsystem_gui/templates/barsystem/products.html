@@ -1,0 +1,201 @@
+{% load staticfiles %}
+{% load i18n %}
+{% load l10n %}
+{% load money_display %}
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<title>Products</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap-theme.min.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/products.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/keyboard.css' %}" />
+<script type="text/javascript" src="{% static 'js/jquery-2.1.3.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/complete.ly.1.0.1.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/util.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/products.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/keyboard.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap-3.3.4-dist/js/bootstrap.min.js' %}"></script>
+
+<script type="text/javascript">
+var socketEnable = {% if bar %}true{% else %}false{% endif %};
+
+$(function(){
+	{% if bar %}
+	var sock = new WebSocket('ws://localhost:1234/ws/products');
+	sock.onmessage = function(evt)
+	{
+		var message = evt.data;
+		$.post("{% url 'products_get' %}", { 'code': message, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data)
+		{
+			if(data.product_id)
+			{
+				add_cart(data.product_id, 1);
+			}
+		});
+	}
+	{% endif %}
+})
+</script>
+<script type="text/javascript">
+var products = {
+{% for product in products %}
+	{{ product.id }}: {
+		id: {{ product.id }},
+		name: "{{ product.name | safe }}",
+		price: {% if person %}{{ product.person_price|unlocalize }}{% else %}{{ product.cash_price|unlocalize }}{% endif %},
+		quantity_type: "{{ product.quantity_type }}",
+		unit: "{{ product.unit }}",
+	},
+{% endfor %}
+{% for product in special_products %}
+	{{ product.id }}: {
+		id: {{ product.id }},
+		name: "{{ product.name }}",
+		price: {% if person %}{{ product.person_price|unlocalize }}{% else %}{{ product.cash_price|unlocalize }}{% endif %},
+		quantity_type: "{{ product.quantity_type }}",
+		unit: "{{ product.unit }}",
+	},
+{% endfor %}
+};
+var cart = {{cart.js|safe}};
+</script>
+</head>
+<body>
+
+<div class="container page">
+
+<div>
+<h1 class="col-xs-12 col-sm-6 col-md-4 col-lg-4">TkkrLab barsystem</h1>
+{% if person %}<h2 class="col-xs-12 col-sm-6 col-md-8 col-lg-8">User: {{ person.nick_name }}&nbsp;&nbsp; saldo <span class="balance{% if person.amount < 0 %} negative{% endif %}">{{ person.amount|money_display }}</span></h2>{% endif %}
+</div>
+<!-- products -->
+<div id="products" class="col-xs-8 col-sm-8 col-md-9 col-lg-9">
+<div class="row">
+{% for product in products %}
+	<div class="product col-xs-12 col-sm-4 col-md-4 col-lg-3" id="product_{{ product.id }}" data-id="{{product.id}}">
+		<div>
+			<img{% if product.image %} src="{{MEDIA_URL}}{{product.image}}"{% endif %} />
+			<span class="name">{{ product.name }}</span>
+			<br />
+			<span class="price">{% if person %}{{product.person_price|money_display}}{% else %}{{product.cash_price|money_display}}{% endif %}</span>
+		</div>
+	</div>
+{% endfor %}
+</div>
+</div>
+<!-- end products -->
+
+<!-- cart -->
+<form id="cart" method="post" action="{% url 'products' %}" class="col-xs-4 col-sm-4 col-md-3">
+	{% csrf_token %}
+	<div id="cart-buttons">
+		<div class="row">
+			<button class="button action col-xs-12 col-sm-6 col-md-6" type="submit" name="action" value="cancel">
+				<div><span>{% trans 'Cancel' %}</span></div>
+			</button>
+			<button class="button action col-xs-12 col-sm-6 col-md-6" type="submit" name="action" value="ok"><div>{% trans 'Checkout' %}</div></button>
+		</div>
+		<hr class="row" />
+		<div class="row">
+		{% for product in special_products %}
+		<div class="product col-xs-12 col-sm-6 col-md-6" id="product_{{ product.id }}" data-id="{{product.id}}">
+			<div>
+				<span class="name">{{ product.name }}</span>
+				<br />
+				<span class="price">{% if person %}{{product.person_price|money_display}}{% else %}{{product.cash_price|money_display}}{% endif %}</span>
+			</div>
+		</div>
+		{% endfor %}
+		</div>
+		<hr class="row" />
+	</div>
+	<div id="cart-total" class="row">{% trans 'Total' %}: <span id="cart-total-price"></span></div>
+	<ul id="cart-items" class="">
+	</ul>
+</form>
+<!-- end cart -->
+
+<!--div id="cmdline" class="col-xs-8 col-md-8 col-sm-8"><div></div></div-->
+
+</div><!-- page -->
+
+<div id="enter-quantity" class="modal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">{% trans 'Enter quantity' %}</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					<div id="enter-quantity-form">
+						<div id="numpad" class="numpad">
+							<input class="keyboard-input" type="text" name="value" maxlength="10" /> <span class="input-unit"></span>
+							<div class="keyboard"></div>
+						</div>
+					</div>
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">{% trans 'Cancel' %}</button>
+				<button type="button" class="btn btn-primary" name="ok">{% trans 'OK' %}</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% if false %}
+<div id="help" class="modal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Help</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					Command line interface:
+					<dl>
+						<dt><kbd>help</kbd></dt><dd>this right here</dd>
+						<dt><kbd>ok</kbd></dt><dd> checkout shopping cart</dd>
+						<dt><kbd>cancel</kbd></dt><dd> cancel order</dd>
+						<dt><kbd>buy <var>quantity</var> <var>product</var></kbd></dt><dd> set the cart quantity of the product</dd>
+						<dt><kbd><var>quantity</var> <var>product</var></kbd></dt><dd> add <var>quantity</var> products to cart</dd>
+						<dt><kbd><var>product</var></kbd></dt><dd> add 1 of the product to the cart</dd>
+					</dl>
+				</p>
+				<p>
+					Currently there is a bug here which prevents you from closing the help window with the escape key...
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+{% endif %}
+
+<div class="modal" id="keyboard">
+	<div class="modal-bg"></div>
+	<div class="modal-content">
+		<input>
+		<div class="keyboard"></div>
+	</div>
+</div>
+
+<!-- cart item template -->
+<script type="text/template" id="templateCartItem">
+<li class="product cart-product row col-md-12 col-sm-12" id="cart_product_{id}" data-id="{id}">
+<div>
+{quantity} {unit} {name}<br />
+<span class="price">{price}</span>
+<input type="hidden" name="products[{id}][quantity]" value="{quantity}" />
+</div>
+</li>
+</script>
+<!-- end template -->
+
+</body>
+</html>

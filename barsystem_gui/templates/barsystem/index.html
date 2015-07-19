@@ -1,0 +1,95 @@
+{% load staticfiles %}
+{% load money_display %}
+<html>
+<head>
+<title>Bar system</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap-theme.min.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
+<style type="text/css">
+.button > div {
+	border: 2px solid black;
+	border-radius: 5px;
+	cursor: pointer;
+	line-height: 52px;
+	text-align: center;
+	min-height: 60px;
+}
+.button:hover > div {
+	border-color: #ee0;
+}
+
+.button, .button:active, .button:visited, .button:hover {
+	color: #000;
+	background-color: #fff;
+	text-decoration: none;
+}
+
+#connection {
+	position: absolute;
+	top: 0;
+	right: 0;x
+}
+#connection.ok div {
+	border-color: green;
+	background-color: green;
+}
+#connection.fail div {
+	border-color: red;
+	background-color: red;
+}
+#connection div {
+	border-width: 1px;
+	border-style: solid;
+	border-color: transparent;
+	border-radius: 10px;
+	width: 20px;
+	height: 20px;
+	background-color: transparent;
+}
+
+</style>
+{% if bar %}
+<script type="text/javascript" src="{% static 'js/jquery-2.1.3.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+{% endif %}
+</head>
+<body>
+<div class="page">
+<div id="connection"><div></div></div>
+
+<h1 class="col-xs-12 col-sm-12 col-md-12">TkkrLab Barsystem</h1>
+<img class="col-xs-8 col-sm-6 col-md-4" src="{% static 'img/mainpage_logo.png' %}" />
+<br>
+
+<div class="col-xs-12 col-sm-6 col-md-8">
+<div class="col-xs-12 col-sm-12 col-md-12">
+<a class="col-xs-6 col-sm-6 col-md-6 button" href="{% url 'products' %}"><div><span class="name">Cash order</span></div></a>
+<a class="col-xs-6 col-sm-6 col-md-6 button" href="{% url 'people' %}"><div><span class="name">Attendant</span></div></a>
+</div>
+<hr class="col-xs-6 col-sm-6 col-md-6" />
+{% if wanbetalers %}
+<div class="col-xs-12 col-sm-12 col-md-12">
+<span>Top 5 wanbetalers: </span>
+<ul class="wanbetalers_list">
+{% for wanbetaler in wanbetalers %}
+<li>{{ wanbetaler }}: {{wanbetaler.amount|money_display}}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+
+</div>
+
+</div><!-- .page -->
+
+<form id="messageForm" method="post">
+{% csrf_token %}
+<input type="hidden" name="message" />
+</form>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+{% load staticfiles %}
+{% load money_display %}
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<title>Confirm order</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap-theme.min.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/products.css' %}" />
+<script type="text/javascript" src="{% static 'js/jquery-2.1.3.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap-3.3.4-dist/js/bootstrap.min.js' %}"></script>
+</head>
+<body>
+<div class="container">
+<div class="row"><h1 class="col-xs-12 col-sm-12 col-md-12 col-lg-12">TkkrLab barsystem</h1></div>
+<div class="row">
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Product</th>
+				<th>Aantal</th>
+				<th>Prijs</th>
+			</tr>
+		</thead>
+		<tbody>
+{% for item in cart.values %}
+			<tr>
+				<td>{{ item.product }}</td>
+				<td>{{ item.quantity }}</td>
+				<td>{{ item.amount | money_display }}</td>
+			</tr>
+{% endfor %}
+		</tbody>
+	</table>
+</div>
+<div class="row total-line">
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Total</div>
+	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{total|money_display}}</div>
+</div>
+<div class="row total-line">
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Balance</div>
+	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{balance|money_display}}</div>
+</div>
+<div class="row total-line">
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">New balance</div>
+	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{new_balance|money_display}}</div>
+</div>
+<div class="row total-line">
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Limit</div>
+	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{balance_limit|money_display}}</div>
+</div>
+<div class="row total-line">
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Can checkout</div>
+	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{checkout_permitted}}</div>
+</div>
+<hr />
+<form method="post" action="{% url 'products_confirm' %}">
+{% csrf_token %}
+<div class="buttons col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<button class="button action col-xs-6 col-sm-6 col-md-6 col-lg-6" type="submit" name="action" value="back"><div>Back</div></button>
+	<button class="button action col-xs-6 col-sm-6 col-md-6 col-lg-6" type="submit" name="action" value="confirm"><div>Confirm</div></button>
+</div>
+</form>
+</div>
+</body>
+</html>
