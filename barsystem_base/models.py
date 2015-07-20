@@ -31,7 +31,7 @@ class Product(models.Model):
         return self.name
 
     def get_price(self, person, quantity=Decimal(1)):
-        return (self.person_price if isinstance(person, Person) else self.cash_price) * quantity
+        return (self.person_price if isinstance(person, Person) and person.member else self.cash_price) * quantity
 
     class Meta:
         verbose_name = _('product')
@@ -42,8 +42,8 @@ class Person(models.Model):
     last_name  = models.CharField(blank=True, default='', max_length=100)
     nick_name  = models.CharField(max_length=100)
     amount     = models.DecimalField(default=0.0, max_digits=10, decimal_places=2)
-    type       = models.CharField(max_length=100)
-    token      = models.CharField(default=0, max_length=100)
+    type       = models.CharField(max_length=100, blank=True, null=True, default=None)
+    token      = models.CharField(max_length=100, blank=True, null=True, default=None)
 
     active     = models.BooleanField(default=True)
     member     = models.BooleanField(default=False)
