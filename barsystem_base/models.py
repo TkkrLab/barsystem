@@ -46,6 +46,7 @@ class Person(models.Model):
     token      = models.CharField(default=0, max_length=100)
 
     active     = models.BooleanField(default=True)
+    member     = models.BooleanField(default=False)
     special    = models.BooleanField(default=False)
     allow_remote_access = models.BooleanField(default=False)
     remote_passphrase = models.CharField(blank=True, default='', max_length=50)
@@ -55,7 +56,7 @@ class Person(models.Model):
     def set_balance(self, x):
         self.amount = x
     balance = property(get_balance, set_balance)
-    balance_limit = models.DecimalField(blank=True, default=0, max_digits=5, decimal_places=2)
+    balance_limit = models.DecimalField(null=True, blank=True, default=0, max_digits=5, decimal_places=2)
 
     def __str__(self):
         return self.nick_name
