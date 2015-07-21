@@ -43,20 +43,22 @@ $(function(){
 </script>
 <script type="text/javascript">
 var products = {
-{% for product in products %}
+{% for category in product_categories %}
+{% for product in category.products %}
 	{{ product.id }}: {
 		id: {{ product.id }},
 		name: "{{ product.name | safe }}",
-		price: {% if person %}{{ product.person_price|unlocalize }}{% else %}{{ product.cash_price|unlocalize }}{% endif %},
+		price: {{ product.price|unlocalize }},
 		quantity_type: "{{ product.quantity_type }}",
 		unit: "{{ product.unit }}",
 	},
+{% endfor %}
 {% endfor %}
 {% for product in special_products %}
 	{{ product.id }}: {
 		id: {{ product.id }},
 		name: "{{ product.name }}",
-		price: {% if person %}{{ product.person_price|unlocalize }}{% else %}{{ product.cash_price|unlocalize }}{% endif %},
+		price: {{ product.price|unlocalize }},
 		quantity_type: "{{ product.quantity_type }}",
 		unit: "{{ product.unit }}",
 	},
@@ -69,23 +71,42 @@ var cart = {{cart.js|safe}};
 
 <div class="container page">
 
-<div>
+<div class="row">
 <h1 class="col-xs-12 col-sm-6 col-md-4 col-lg-4">TkkrLab barsystem</h1>
 {% if person %}<h2 class="col-xs-12 col-sm-6 col-md-8 col-lg-8">User: {{ person.nick_name }}&nbsp;&nbsp; saldo <span class="balance{% if person.amount < 0 %} negative{% endif %}">{{ person.amount|money_display }}</span></h2>{% endif %}
 </div>
+
+{% include 'barsystem/messages.html' %}
+
 <!-- products -->
 <div id="products" class="col-xs-8 col-sm-8 col-md-9 col-lg-9">
-<div class="row">
-{% for product in products %}
+<div role="tabpanel">
+<ul class="nav nav-tabs" role="tablist">
+{% for category in product_categories %}
+<li role="presentation">
+<a role="tab" data-toggle="tab" data-target="#category_{{category.id}}">{{category.name}}</a>
+</li>
+{% endfor %}
+</ul>
+<div id="tabContent" class="tab-content">
+<div class="tab-pane active">
+	<p>{% trans 'Choose a category' %}</p>
+</div>
+{% for category in product_categories %}
+<div class="tab-pane" id="category_{{category.id}}">
+	{% for product in category.products %}
 	<div class="product col-xs-12 col-sm-4 col-md-4 col-lg-3" id="product_{{ product.id }}" data-id="{{product.id}}">
 		<div>
 			<img{% if product.image %} src="{{MEDIA_URL}}{{product.image}}"{% endif %} />
 			<span class="name">{{ product.name }}</span>
 			<br />
-			<span class="price">{% if person %}{{product.person_price|money_display}}{% else %}{{product.cash_price|money_display}}{% endif %}</span>
+			<span class="price">{{product.price|money_display}}</span>
 		</div>
 	</div>
+	{% endfor %}
+</div>
 {% endfor %}
+</div>
 </div>
 </div>
 <!-- end products -->
@@ -107,7 +128,7 @@ var cart = {{cart.js|safe}};
 			<div>
 				<span class="name">{{ product.name }}</span>
 				<br />
-				<span class="price">{% if person %}{{product.person_price|money_display}}{% else %}{{product.cash_price|money_display}}{% endif %}</span>
+				<span class="price">{{product.price|money_display}}</span>
 			</div>
 		</div>
 		{% endfor %}

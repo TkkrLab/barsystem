@@ -3,10 +3,12 @@ from django.views.generic.base import View, TemplateView
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from barsystem_base.models import Person, Product, Journal
+from barsystem_base.models import Person, Product, ProductCategory, Journal
 
 import re
 from decimal import Decimal
@@ -105,6 +107,7 @@ class IndexView(TemplateView):
 
 class ProductsView(TemplateView):
 	template_name = 'barsystem/products.html'
+	pagination_on = False
 
 	def post(self, request, *args, **kwargs):
 		if request.POST.get('action', None) == 'cancel':
@@ -120,9 +123,15 @@ class ProductsView(TemplateView):
 				quantity = value
 				cart[product_id] = CartItem(product_id=product_id, quantity=float(quantity), sender=None, recipient=None)
 		if len(cart) == 0:
+			messages.info(request, _('Nothing in cart'))
 			return HttpResponseRedirect(reverse('products'))
 		request.session['cart'] = cart
 		return HttpResponseRedirect(reverse('products_confirm'))
+
+	def make_product_list(self, products, person):
+		for product in products:
+			product.price = product.get_price(person)
+		return products
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -133,21 +142,36 @@ class ProductsView(TemplateView):
 			pass
 		context['person'] = person
 
-		product_list = Product.objects.filter(active=True, special=False)
-		paginator = Paginator(product_list, 21**10)
+		products = Product.objects.filter(active=True, special=False).order_by('category').select_related()
 
-		page = self.request.GET.get('page')
-		try:
-			products = paginator.page(page)
-		except PageNotAnInteger:
-			products = paginator.page(1)
-		except EmptyPage:
-			products = paginator.page(paginator.num_pages)
+		if self.pagination_on:
+			paginator = Paginator(products, 21**10)
 
-		context['products'] = products
-		# context['products'] = product_list
+			page = self.request.GET.get('page')
+			try:
+				product_pagination = paginator.page(page)
+			except PageNotAnInteger:
+				product_pagination = paginator.page(1)
+			except EmptyPage:
+				product_pagination = paginator.page(paginator.num_pages)
+			products = product_pagination
 
-		context['special_products'] = Product.objects.filter(active=True, special=True)
+		context['products'] = self.make_product_list(products, person)
+
+		product_categories = ProductCategory.objects.filter(active=True)
+		for product_category in product_categories:
+			filter = {
+				'active': True,
+				'special': False,
+				'category': product_category
+			}
+			if product_category.name == 'Overig': # nnnnaaaasty ugly hack
+				filter['category'] = None
+			product_category.products = self.make_product_list(Product.objects.filter(**filter), person)
+
+		context['product_categories'] = product_categories
+
+		context['special_products'] = self.make_product_list(Product.objects.filter(active=True, special=True), person)
 
 		context['cart'] = Cart(self.request.session.get('cart', {}))
 		for c in context['cart'].values():
@@ -177,11 +201,9 @@ class ProductsConfirmView(TemplateView):
 
 		if request.POST.get('action', None) == 'confirm':
 			if not self.can_check_out(request):
+				messages.error(request, _('Unable to check out: insufficient funds.'))
 				return HttpResponseRedirect(reverse('products_confirm'))
 
-			# TEMP DISABLE THIS SHIT
-			# return HttpResponseRedirect(reverse('products_confirm'))
-			# EOF TEMP
 			total = Decimal(0)
 			for cart_item in Cart(request.session['cart']).values():
 				try:
@@ -205,6 +227,7 @@ class ProductsConfirmView(TemplateView):
 				if key in request.session:
 					del request.session[key]
 
+		messages.success(request, _('Order completed'))
 		return HttpResponseRedirect(reverse('index'))
 
 	def get_context_data(self, **kwargs):
@@ -253,7 +276,13 @@ class PeopleView(TemplateView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		people_list = Person.objects.filter(active=True)
+
+		is_attendant = False
+
+		if is_attendant:
+			people = Person.objects.filter(active=True, special=False)
+		else:
+			people = Person.objects.filter(active=True, special=False, member=False)
 
 		context['pagination_on'] = self.pagination_on
 
@@ -262,15 +291,15 @@ class PeopleView(TemplateView):
 
 			page = self.request.GET.get('page')
 			try:
-				people = paginator.page(page)
+				people_paginator = paginator.page(page)
 			except PageNotAnInteger:
-				people = paginator.page(1)
+				people_paginator = paginator.page(1)
 			except EmptyPage:
-				people = paginator.page(paginator.num_pages)
+				people_paginator = paginator.page(paginator.num_pages)
+			context['people'] = people_paginator
 		else:
-			people = people_list
+			context['people'] = people
 
-		context['people'] = people
 		return context
 
 class PeopleSetView(View):
@@ -283,4 +312,38 @@ class PeopleSetView(View):
 		return HttpResponseRedirect(reverse('products'))
 
 class AddToCartView(View):
+	pass
+
+class CreateAccountView(TemplateView):
+	template_name = 'barsystem/create_account.html'
+
+	def post(self, request, *args, **kwargs):
+		if request.POST.get('action') == 'cancel':
+			return HttpResponseRedirect(reverse('index'))
+
+		account_name = request.POST.get('name')
+		account_balance = request.POST.get('deposit')
+		try:
+			account_balance = Decimal(account_balance)
+		except TypeError:
+			messages.error(request, _('Invalid balance value'), extra_tags=_('Error'))
+			return HttpResponseRedirect(reverse('create_account'))
+
+		name_in_use = Person.objects.filter(nick_name=account_name).exists()
+
+		if name_in_use:
+			messages.error(request, _('Name in use'), extra_tags=_('Error'))
+			return HttpResponseRedirect(reverse('create_account'))
+
+		account = Person()
+		account.nick_name = account_name
+		account.amount = Decimal(account_balance)
+		account.save()
+
+		request.session['person_id'] = account.id
+
+		messages.success(request, _('Account created'))
+		return HttpResponseRedirect(reverse('products'))
+
+class DeleteAccountView(TemplateView):
 	pass
