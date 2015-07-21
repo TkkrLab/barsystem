@@ -184,7 +184,7 @@ class ProductsGetView(View):
 	def post(self, request, *args, **kwargs):
 		barcode = request.POST.get('code')
 		try:
-			product = Product.objects.get(bar_code=barcode)
+			product = Product.objects.get(barcode=barcode)
 			return JsonResponse({'product_id': product.id})
 		except Product.DoesNotExist:
 			return JsonResponse({})

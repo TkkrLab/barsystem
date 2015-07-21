@@ -28,7 +28,7 @@ class Product(models.Model):
     person_price  = models.DecimalField(max_digits=10, decimal_places=4)
     cash_price    = models.DecimalField(max_digits=10, decimal_places=4)
     type          = models.CharField(max_length=100, blank=True, default='')
-    bar_code      = models.CharField(max_length=100, blank=True, default=None)
+    barcode       = models.CharField(max_length=100, blank=True, default=None)
 
     image         = models.ImageField(blank=True, default=None)
     active        = models.BooleanField(default=True)

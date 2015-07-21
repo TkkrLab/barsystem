@@ -21,6 +21,8 @@ class Command(BaseCommand):
 
                 values['active'] = values['type'] == 'normal'
                 values['special'] = values['type'] == 'special'
+                values['barcode'] = values['bar_code']
+                del values['bar_code']
                 p = Product()
                 for key, val in values.items():
                     if hasattr(p, key):
