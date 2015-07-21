@@ -1,13 +1,15 @@
 {% load staticfiles %}
+{% load i18n %}
+{% load l10n %}
 {% load money_display %}
 <!DOCTYPE html>
 <html lang="nl">
 <head>
 <title>Confirm order</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap.min.css' %}">
-<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap-theme.min.css' %}">
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap.min.css' %}" />
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap-theme.min.css' %}" />
 
 <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/products.css' %}" />
@@ -68,9 +70,9 @@
 <hr />
 <form method="post" action="{% url 'products_confirm' %}">
 {% csrf_token %}
-<div class="buttons col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<button class="button action col-xs-6 col-sm-6 col-md-6 col-lg-6" type="submit" name="action" value="back"><div>Back</div></button>
-	<button class="button action col-xs-6 col-sm-6 col-md-6 col-lg-6" type="submit" name="action" value="confirm"><div>Confirm</div></button>
+<div class="buttons btn-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<button class="btn btn-primary btn-lg" type="submit" name="action" value="confirm"{% if not checkout_permitted %} disabled="disabled"{% endif %}>{% trans 'Confirm' %}</button>
+	<button class="btn btn-default btn-lg" type="submit" name="action" value="back">{% trans 'Back' %}</button>
 </div>
 </form>
 </div>

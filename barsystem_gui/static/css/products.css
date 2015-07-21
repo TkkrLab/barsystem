@@ -21,7 +21,7 @@
 	font-size: 1.2em;
 }
 
-#cart-buttons button, .buttons button {
+#cart-buttons .button, .buttons button {
 	border-style: none;
 	background-color: transparent;
 }
