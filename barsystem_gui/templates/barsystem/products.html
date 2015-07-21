@@ -2,6 +2,9 @@
 {% load i18n %}
 {% load l10n %}
 {% load money_display %}
+
+{% regroup products by category as products_by_category %}
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -43,8 +46,7 @@ $(function(){
 </script>
 <script type="text/javascript">
 var products = {
-{% for category in product_categories %}
-{% for product in category.products %}
+{% for product in products %}
 	{{ product.id }}: {
 		id: {{ product.id }},
 		name: "{{ product.name | safe }}",
@@ -52,7 +54,6 @@ var products = {
 		quantity_type: "{{ product.quantity_type }}",
 		unit: "{{ product.unit }}",
 	},
-{% endfor %}
 {% endfor %}
 {% for product in special_products %}
 	{{ product.id }}: {
@@ -82,9 +83,13 @@ var cart = {{cart.js|safe}};
 <div id="products" class="col-xs-8 col-sm-8 col-md-9 col-lg-9">
 <div role="tabpanel">
 <ul class="nav nav-tabs" role="tablist">
-{% for category in product_categories %}
+{% for group in products_by_category %}
 <li role="presentation">
-<a role="tab" data-toggle="tab" data-target="#category_{{category.id}}">{{category.name}}</a>
+{% if group.grouper == None %}
+<a role="tab" data-toggle="tab" data-target="#category_unsorted">{% trans 'Unsorted' %}</a>
+{% else %}
+<a role="tab" data-toggle="tab" data-target="#category_{{group.grouper.id}}">{{group.grouper.name}}</a>
+{% endif %}
 </li>
 {% endfor %}
 </ul>
@@ -92,9 +97,13 @@ var cart = {{cart.js|safe}};
 <div class="tab-pane active">
 	<p>{% trans 'Choose a category' %}</p>
 </div>
-{% for category in product_categories %}
-<div class="tab-pane" id="category_{{category.id}}">
-	{% for product in category.products %}
+{% for group in products_by_category %}
+{% if group.grouper == None %}
+<div class="tab-pane" id="category_unsorted">
+{% else %}
+<div class="tab-pane" id="category_{{group.grouper.id}}">
+{% endif %}
+	{% for product in group.list %}
 	<div class="product col-xs-12 col-sm-4 col-md-4 col-lg-3" id="product_{{ product.id }}" data-id="{{product.id}}">
 		<div>
 			<img{% if product.image %} src="{{MEDIA_URL}}{{product.image}}"{% endif %} />

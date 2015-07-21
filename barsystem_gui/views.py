@@ -163,19 +163,6 @@ class ProductsView(TemplateView):
 
 		context['products'] = self.make_product_list(products, person)
 
-		product_categories = ProductCategory.objects.filter(active=True)
-		for product_category in product_categories:
-			filter = {
-				'active': True,
-				'special': False,
-				'category': product_category
-			}
-			if product_category.name == 'Overig': # nnnnaaaasty ugly hack
-				filter['category'] = None
-			product_category.products = self.make_product_list(Product.objects.filter(**filter), person)
-
-		context['product_categories'] = product_categories
-
 		context['special_products'] = self.make_product_list(Product.objects.filter(active=True, special=True), person)
 
 		context['cart'] = Cart(self.request.session.get('cart', {}))
