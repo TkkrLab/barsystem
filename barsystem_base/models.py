@@ -6,7 +6,17 @@ from datetime import datetime
 import pytz
 from decimal import Decimal
 
-# Create your models here.
+
+class ProductCategory(models.Model):
+    name         = models.CharField(max_length=50)
+    active       = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Product category')
+        verbose_name_plural = _('Product categories')
 
 class Product(models.Model):
     QUANTITY_TYPE_CHOICES = (
@@ -26,6 +36,8 @@ class Product(models.Model):
     special_id    = models.CharField(max_length=50, null=True, blank=True, default=None)
     quantity_type = models.CharField(max_length=100, blank=True, choices=QUANTITY_TYPE_CHOICES, default='None')
     unit          = models.CharField(max_length=10, blank=True, default='')
+
+    category      = models.ForeignKey('ProductCategory', null=True, blank=True, default=None)
 
     def __str__(self):
         return self.name
