@@ -33,7 +33,7 @@
 {% for item in cart.values %}
 			<tr>
 				<td>{{ item.product }}</td>
-				<td>{{ item.quantity }}</td>
+				<td>{{ item.quantity }}{% if item.product.unit %} {{ item.product.unit }}{% endif %}</td>
 				<td>{{ item.amount | money_display }}</td>
 			</tr>
 {% endfor %}

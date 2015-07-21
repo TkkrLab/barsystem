@@ -109,7 +109,7 @@ var cart = {{cart.js|safe}};
 			<img{% if product.image %} src="{{MEDIA_URL}}{{product.image}}"{% endif %} />
 			<span class="name">{{ product.name }}</span>
 			<br />
-			<span class="price">{{product.price|money_display}}</span>
+			<span class="price">{{product.price|money_display}}{% if product.unit %} / {{ product.unit }}{% endif %}</span>
 		</div>
 	</div>
 	{% endfor %}
