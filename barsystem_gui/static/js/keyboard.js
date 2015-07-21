@@ -71,26 +71,34 @@
 				}
 			}
 
+			var type_number = output.attr('type') == 'number';
+
+			var current = output.val();
+			if(type_number)
+				current = current.toString()
+
+			var new_value = null;
+			var append = '';
+
 			if(button_id.match(/^[0-9A-Za-z]$/))
 			{
-				output.val(output.val() + button_id);
+				append = button_id;
 			}
 			else
 			{
 				if(button_id == "clear" || button_id == 'AC')
 				{
-					output.val('');
+					new_value = '';
 				}
 				else if(button_id == 'backspace' || button_id == '<-')
 				{
-					var curr = output.val();
-					output.val(curr.substring(0, curr.length - 1));
+					new_value = current.substring(0, current.length - 1);
 				}
 				else if(button_id == '.')
 				{
-					if(output.val().indexOf(button_id) < 0)
+					if(current.indexOf(button_id) < 0)
 					{
-						output.val(output.val() + button_id);
+						append = button_id;
 					}
 				}
 				else if(has_shift && button_id == 'shift')
@@ -108,15 +116,31 @@
 				}
 				else
 				{
-					output.val(output.val() + button_id);
+					append = button_id;
 				}
+			}
+
+			if(append.length > 0)
+			{
+				new_value = current + append;
+			}
+			if(new_value != null)
+			{
+				if(type_number)
+				{
+					new_value = parseFloat(new_value);
+				}
+				output.val(new_value);
 			}
 
 			var maxlength = output.attr('maxlength');
 			if(maxlength)
 			{
-				if(output.val().length > maxlength)
-					output.val(output.val().substr(0, maxlength));
+				var current = output.val()
+				if(typeof current == 'number')
+					current = current.toString();
+				if(current.length > maxlength)
+					output.val(current.substr(0, maxlength));
 			}
 
 			output.focus();
