@@ -1,0 +1,16 @@
+{% load staticfiles %}
+{% load i18n %}
+{% load l10n %}
+{% load money_display %}
+{% for product in products %}
+<div class="product col-xs-12 col-sm-4 col-md-4 col-lg-3" id="{{ product_id_prefix }}product_{{ product.id }}" data-id="{{product.id}}">
+	<div>
+		<img{% if product.image %} src="{{MEDIA_URL}}{{product.image}}"{% endif %} />
+		<span class="name">{{ product.name }}</span>
+		<br />
+		<span class="price">{{product.price|money_display}}{% if product.unit %} / {{ product.unit }}{% endif %}</span>
+	</div>
+</div>
+{% empty %}
+<p>{% trans 'No products' %}</p>
+{% endfor %}
