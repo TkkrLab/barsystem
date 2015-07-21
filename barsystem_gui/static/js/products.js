@@ -246,11 +246,11 @@ $(function(){
 	// enable actions for clicking on product / cart item
 	$('.product').click(function()
 	{
-		add_cart($(this).data('id'), 1);
+		add_cart($(this).data('product-id'), 1);
 	});
 	$('#cart-items').on('click', '.product', function()
 	{
-		add_cart($(this).data('id'), -1);
+		add_cart($(this).data('product-id'), -1);
 	});
 
 
@@ -297,7 +297,7 @@ $(function(){
 						return false;
 				}
 
-				$('#product_' + product_id).toggleClass('in-cart', value > 0);
+				$('[data-product-id=' + product_id + ']').toggleClass('in-cart', value > 0);
 
 				if(value <= 0)
 				{
@@ -372,7 +372,7 @@ function add_cart(product_id, quantity, options)
 		cart[product_id].quantity += quantity;
 	}
 
-	$('#product_' + product_id).toggleClass('in-cart', cart[product_id].quantity > 0);
+	$('[data-product-id=' + product_id + ']').toggleClass('in-cart', cart[product_id].quantity > 0);
 	if(cart[product_id].quantity <= 0)
 	{
 		delete cart[product_id];
@@ -388,7 +388,7 @@ function update_cart(init)
 	if(init) $('#products .product').removeClass('in-cart');
 	$.each(cart, function(id, cart_item) {
 		if(cart_item.quantity == 0) return true; // continue;
-		if(init) $('#product_' + id).addClass('in-cart');
+		if(init) $('[data-product-id=' + id + ']').addClass('in-cart');
 		var product = products[id];
 		var price = product.price;
 		var item = template.format(

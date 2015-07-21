@@ -121,15 +121,13 @@ var cart = {{cart.js|safe}};
 	{% csrf_token %}
 	<div id="cart-buttons">
 		<div class="row">
-			<button class="button action col-xs-12 col-sm-6 col-md-6" type="submit" name="action" value="cancel">
-				<div><span>{% trans 'Cancel' %}</span></div>
-			</button>
 			<button class="button action col-xs-12 col-sm-6 col-md-6" type="submit" name="action" value="ok"><div>{% trans 'Checkout' %}</div></button>
+			<button class="button action col-xs-12 col-sm-6 col-md-6" type="submit" name="action" value="cancel"><div>{% trans 'Cancel' %}</div></button>
 		</div>
 		<hr class="row" />
 		<div class="row">
 		{% for product in special_products %}
-		<div class="product col-xs-12 col-sm-6 col-md-6" id="product_{{ product.id }}" data-id="{{product.id}}">
+		<div class="product col-xs-12 col-sm-12 col-md-12" data-product-id="{{product.id}}">
 			<div>
 				<span class="name">{{ product.name }}</span>
 				<br />
@@ -168,8 +166,10 @@ var cart = {{cart.js|safe}};
 				</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">{% trans 'Cancel' %}</button>
-				<button type="button" class="btn btn-primary" name="ok">{% trans 'OK' %}</button>
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary" name="ok">{% trans 'OK' %}</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">{% trans 'Cancel' %}</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -213,7 +213,7 @@ var cart = {{cart.js|safe}};
 
 <!-- cart item template -->
 <script type="text/template" id="templateCartItem">
-<li class="product cart-product row col-md-12 col-sm-12" id="cart_product_{id}" data-id="{id}">
+<li class="product cart-product row col-md-12 col-sm-12" data-product-id="{id}">
 <div>
 {quantity} {unit} {name}<br />
 <span class="price">{price}</span>
