@@ -7,6 +7,12 @@ class Command(BaseCommand):
 
     csv_columns = 'id,name,sort,items,person_price,cash_price,type,bar_code,stock_value'.split(',')
 
+    column_mapping = {
+        'bar_code': 'barcode',
+        'person_price': 'member_price',
+        'cash_price': 'standard_price'
+    }
+
     def handle(self, *args, **kwargs):
         if len(args) == 0:
             raise CommandError('Please supply filename')
@@ -21,8 +27,9 @@ class Command(BaseCommand):
 
                 values['active'] = values['type'] == 'normal'
                 values['special'] = values['type'] == 'special'
-                values['barcode'] = values['bar_code']
-                del values['bar_code']
+                for old, new in self.column_mapping.items():
+                    values[new] = values[old]
+                    del values[old]
                 p = Product()
                 for key, val in values.items():
                     if hasattr(p, key):

@@ -25,8 +25,8 @@ class Product(models.Model):
     )
 
     name          = models.CharField(max_length=100)
-    person_price  = models.DecimalField(max_digits=10, decimal_places=4)
-    cash_price    = models.DecimalField(max_digits=10, decimal_places=4)
+    member_price  = models.DecimalField(max_digits=10, decimal_places=4)
+    standard_price= models.DecimalField(max_digits=10, decimal_places=4)
     type          = models.CharField(max_length=100, blank=True, default='')
     barcode       = models.CharField(max_length=100, blank=True, default=None)
 
@@ -43,7 +43,7 @@ class Product(models.Model):
         return self.name
 
     def get_price(self, person, quantity=Decimal(1)):
-        return (self.person_price if isinstance(person, Person) and person.member else self.cash_price) * quantity
+        return (self.member_price if isinstance(person, Person) and person.member else self.standard_price) * quantity
 
     class Meta:
         verbose_name = _('product')
