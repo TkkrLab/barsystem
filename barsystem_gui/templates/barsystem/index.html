@@ -74,9 +74,9 @@
 <br>
 
 <div class="col-xs-12 col-sm-6 col-md-8">
-<a class="row button" href="{% url 'products' %}"><div><span class="name">Cash order</span></div></a>
-<a class="row button" href="{% url 'people' %}"><div><span class="name">Choose account</span></div></a>
-<a class="row button" href="{% url 'create_account' %}"><div><span class="name">Create account</span></div></a>
+<a class="row button" href="{% url 'products' %}"><div><span class="name">{% trans 'Cash order' %}</span></div></a>
+<a class="row button" href="{% url 'people' %}"><div><span class="name">{% trans 'Choose account' %}</span></div></a>
+<a class="row button" href="{% url 'create_account' %}"><div><span class="name">{% trans 'Create account' %}</span></div></a>
 <hr class="row col-xs-12 col-sm-12 col-md-12" />
 {% if wanbetalers %}
 <div class="row col-xs-12 col-sm-12 col-md-12">
