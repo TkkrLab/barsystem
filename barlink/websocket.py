@@ -5,6 +5,7 @@ import select
 import socket
 import ssl
 import struct
+import sys
 import threading
 import time
 import logging
@@ -207,12 +208,13 @@ class WebSocketConnection:
 
 
 class WebSocketServer(threading.Thread):
-    def __init__(self, ssl=False):
+    def __init__(self, monitor, ssl=False):
         super().__init__()
 
         self._stop_event = threading.Event()
 
-        self.monitor = SerialMonitor(self)
+        self.monitor = monitor
+        self.monitor.set_server(self)
         self.monitor.start()
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -316,18 +318,29 @@ class PortDetect:
         # import sys
         # sys.exit(0)
 
-class SerialMonitor(threading.Thread):
-    def __init__(self, window):
-        super(SerialMonitor, self).__init__()
-        PortDetect()
+class Monitor(threading.Thread):
+    def __init__(self):
+        super().__init__()
         self._stop_event = threading.Event()
-        self.window = window
+        self.server = None
         self.buffer = b''
+    def stop(self):
+        self._stop_event.set()
+    def set_server(self, server):
+        self.server = server
+
+    def notify(self, message):
+        if self.server:
+            self.server.on_message(message)
+
+
+class SerialMonitor(Monitor):
+    def __init__(self):
+        super().__init__()
+        # PortDetect()
         self.port = '/dev/ttyUSB0'
         self.serial = None
         self.reconnect()
-    def stop( self ):
-        self._stop_event.set()
 
     def detect_port(self):
         pass
@@ -374,7 +387,7 @@ class SerialMonitor(threading.Thread):
         if len(data) == 0:
             return
         print('Data[{}]: {}'.format(len(data), data))
-        self.window.on_message(data)
+        self.notify.on_message(data)
         # if data[0] == 'i' and data [-1] == 'b':
         #     ibutton = int(data[1:-1])
         #     self.window.ibutton_scanned.emit(ibutton)
@@ -407,9 +420,22 @@ class SerialMonitor(threading.Thread):
         if self.serial:
             self.serial.close()
 
+class ConsoleMonitor(Monitor):
+    def run(self):
+        while not self._stop_event.is_set():
+            while sys.stdin in select.select([sys.stdin],[],[], 0.1)[0]:
+                line = sys.stdin.readline().strip()
+                if not line:
+                    self.stop()
+                    break
+                self.notify(line)
+            time.sleep(0.1)
+
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
-    s = WebSocketServer()
+    # monitor = SerialMonitor()
+    monitor = ConsoleMonitor()
+    s = WebSocketServer(monitor)
     try:
         s.start()
         s.join()
