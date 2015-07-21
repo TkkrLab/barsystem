@@ -82,7 +82,7 @@ var cart = {{cart.js|safe}};
 <!-- products -->
 <div id="products" class="col-xs-8 col-sm-8 col-md-9 col-lg-9">
 <div role="tabpanel">
-<ul class="nav nav-tabs" role="tablist">
+<ul class="nav nav-pills" role="tablist">
 <li class="active"><a data-toggle="tab" data-target="#category_popular">{% trans 'Popular' %}</a></li>
 {% for group in products_by_category %}
 <li role="presentation">
@@ -167,7 +167,7 @@ var cart = {{cart.js|safe}};
 			</div>
 			<div class="modal-footer">
 				<div class="btn-group">
-					<button type="button" class="btn btn-primary" name="ok">{% trans 'OK' %}</button>
+					<button type="button" class="btn btn-primary" name="ok">{% trans 'Confirm' %}</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">{% trans 'Cancel' %}</button>
 				</div>
 			</div>
