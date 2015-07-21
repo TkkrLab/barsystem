@@ -14,6 +14,11 @@ import re
 from decimal import Decimal
 import json
 
+from django.db.models.aggregates import Aggregate
+class IsNull(Aggregate):
+	function = 'ISNULL'
+	name = 'IsNull'
+
 """
 TODO
 cart model:
@@ -142,7 +147,7 @@ class ProductsView(TemplateView):
 			pass
 		context['person'] = person
 
-		products = Product.objects.filter(active=True, special=False).order_by('category').select_related()
+		products = Product.objects.annotate(category_is_null=IsNull('category')).filter(active=True, special=False).order_by('category_is_null', 'category').select_related()
 
 		if self.pagination_on:
 			paginator = Paginator(products, 21**10)
