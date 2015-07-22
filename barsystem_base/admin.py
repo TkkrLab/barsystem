@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Person, Product, ProductCategory, Journal
+from .models import Person, Product, ProductCategory, Journal, Token
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
@@ -19,3 +19,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 class JournalAdmin(admin.ModelAdmin):
     list_display = ('moment', 'sender', 'recipient', 'product', 'items', 'amount')
     date_hierarchy = 'moment'
+
+@admin.register(Token)
+class TokenAdmin(admin.ModelAdmin):
+	list_display = ('person', 'type')

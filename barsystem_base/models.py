@@ -77,6 +77,11 @@ class Person(models.Model):
         verbose_name = _('person')
         verbose_name_plural = _('people')
 
+class Token(models.Model):
+    person = models.ForeignKey('Person', related_name='person')
+    value  = models.CharField(max_length=32)
+    type   = models.CharField(max_length=32)
+
 class Journal(models.Model):
     moment    = models.DateTimeField()
     sender    = models.ForeignKey('Person', related_name='sender', null=True, blank=True, default=None)
