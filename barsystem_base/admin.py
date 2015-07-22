@@ -22,4 +22,4 @@ class JournalAdmin(admin.ModelAdmin):
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
-	list_display = ('person', 'type')
+	list_display = ('person', 'type', 'value')

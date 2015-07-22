@@ -387,6 +387,9 @@ class SerialMonitor(Monitor):
         if len(data) == 0:
             return
         print('Data[{}]: {}'.format(len(data), data))
+        old_ibutton = re.match(r'^i(\d+)b$', data)
+        if old_ibutton:
+            data = 'ibutton{' + old_ibutton.group(1) + '}'
         self.notify.on_message(data)
         # if data[0] == 'i' and data [-1] == 'b':
         #     ibutton = int(data[1:-1])

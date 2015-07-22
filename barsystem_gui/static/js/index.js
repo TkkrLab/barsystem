@@ -34,7 +34,7 @@ function connect_websocket()
 	{
 		// console.debug('sock.onmessage:', evt);
 		var message = evt.data;
-		if(message.match(/^i\d+b$/))
+		if(message.match(/^([a-z0-9_]+){(.+)}$/))
 			$('#messageForm')
 				.find('input[name=message]').val(message).end()
 				.submit();

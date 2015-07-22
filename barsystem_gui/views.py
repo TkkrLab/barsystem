@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from barsystem_base.models import Person, Product, ProductCategory, Journal
+from barsystem_base.models import Person, Product, ProductCategory, Journal, Token
 
 import re
 from decimal import Decimal
@@ -86,17 +86,25 @@ class IndexView(TemplateView):
 
 	def post(self, request, *args, **kwargs):
 		message = request.POST.get('message')
-		m = re.match(r'^i(\d+)b$', message)
-		if m:
-			button_id = m.groups(1)[0]
+
+		token = None
+
+		token_match = re.match(r'^([a-z0-9_]+){(.+)}$', message)
+		if token_match:
+			type, value = token_match.groups()
+			print(type, value)
 			try:
-				person = Person.objects.get(active=True, token=button_id)
-				request.session['person_id'] = person.id
-				if person.special and person.type == 'attendant':
-					return HttpResponseRedirect(reverse('people'))
-				return HttpResponseRedirect(reverse('products'))
-			except Person.DoesNotExist:
+				token = Token.objects.get(type=type, value=value)
+			except Token.DoesNotExist:
 				pass
+
+		if token:
+			person = token.person
+			request.session['person_id'] = person.id
+			if person.special and person.type == 'attendant':
+				return HttpResponseRedirect(reverse('people'))
+			return HttpResponseRedirect(reverse('products'))
+
 		return HttpResponseRedirect(reverse('index'))
 
 	def get_context_data(self, **kwargs):
