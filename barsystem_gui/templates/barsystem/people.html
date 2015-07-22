@@ -26,22 +26,27 @@ $(function()
 </head>
 <body>
 <div class="container">
-    <div class="row buttons">
-        <div class="col-sm-4 col-md-4 col-lg-4 button link" data-href="{% url 'index' %}">
-            <div>
-                <span class="name">Annuleren</span>
-            </div>
-        </div>
+    <h1>{% trans 'Choose account' %}</h1>
+    <div class="row">
+        <a href="{% url 'index' %}" class="btn btn-default btn-lg">{% trans 'Cancel' %}</a>
     </div>
-    <div class="row buttons">
-{% for person in people %}
-        <div class="col-sm-4 col-md-4 col-lg-4 button link" data-href="{% url 'people_set' person.id %}">
-            <div>
-                <span class="name">{{ person }}</span><br /><span class="money{% if person.amount < 0 %} negative{% endif %}">{{person.amount|money_display}}</span>
-            </div>
-        </div>
+
+<div role="tabpanel">
+<ul class="nav nav-pills" role="tablist">
+{% for letter, people in abc_buttons.items %}
+<li{% if not people %} class="disabled"{% endif %}><a data-toggle="tab" data-target="#people-{{ letter }}">{{ letter }}</a></li>
 {% endfor %}
-    </div>
+</ul>
+<div class="tab-content">
+{% for letter, people in abc_buttons.items %}
+<div class="tab-pane" id="people-{{letter}}">
+{% for person in people %}
+<a href="{% url 'people_set' person.id %}" class="btn btn-default btn-lg btn-block">{{person}}</a>
+{% endfor %}
+</div>
+{% endfor %}
+</div>
+</div>
 
 {% if pagination_on %}
     <div class="row pagination">
