@@ -208,14 +208,15 @@ class WebSocketConnection:
 
 
 class WebSocketServer(threading.Thread):
-    def __init__(self, monitor, ssl=False):
+    def __init__(self, monitors, ssl=False):
         super().__init__()
 
         self._stop_event = threading.Event()
 
-        self.monitor = monitor
-        self.monitor.set_server(self)
-        self.monitor.start()
+        self.monitors = monitors
+        for monitor in self.monitors:
+            monitor.set_server(self)
+            monitor.start()
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if ssl:
@@ -269,7 +270,8 @@ class WebSocketServer(threading.Thread):
 
     def stop(self):
         logging.info('STOP')
-        self.monitor.stop()
+        for monitor in self.monitors:
+            monitor.stop()
         for conn in self.conn:
             conn.sendMessage(opcode=WebSocketConnection.OPCODE_CLOSE) # opcode close
         self._stop_event.set()
@@ -436,9 +438,9 @@ class ConsoleMonitor(Monitor):
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
-    # monitor = SerialMonitor()
-    monitor = ConsoleMonitor()
-    s = WebSocketServer(monitor)
+    serial_monitor = SerialMonitor()
+    console_monitor = ConsoleMonitor()
+    s = WebSocketServer([serial_monitor, console_monitor])
     try:
         s.start()
         s.join()

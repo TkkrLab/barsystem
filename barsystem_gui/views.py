@@ -100,10 +100,11 @@ class IndexView(TemplateView):
 
 		if token:
 			person = token.person
-			request.session['person_id'] = person.id
-			if person.special and person.type == 'attendant':
-				return HttpResponseRedirect(reverse('people'))
-			return HttpResponseRedirect(reverse('products'))
+			if person.active:
+				request.session['person_id'] = person.id
+				if person.special and person.type == 'attendant':
+					return HttpResponseRedirect(reverse('people'))
+				return HttpResponseRedirect(reverse('products'))
 
 		return HttpResponseRedirect(reverse('index'))
 
