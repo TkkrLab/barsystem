@@ -13,6 +13,7 @@ from barsystem_base.models import Person, Product, ProductCategory, Journal
 import re
 from decimal import Decimal
 import json
+from collections import OrderedDict
 
 from django.db.models.aggregates import Aggregate
 class IsNull(Aggregate):
@@ -279,7 +280,7 @@ class PeopleView(TemplateView):
 		context['pagination_on'] = self.pagination_on
 
 		if self.pagination_on:
-			paginator = Paginator(people_list, 20)
+			paginator = Paginator(people, 20)
 
 			page = self.request.GET.get('page')
 			try:
@@ -291,6 +292,15 @@ class PeopleView(TemplateView):
 			context['people'] = people_paginator
 		else:
 			context['people'] = people
+
+		abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		buttons = OrderedDict()
+		for letter in abc:
+			buttons[letter] = []
+			for person in people:
+				if person.nick_name.upper().startswith(letter):
+					buttons[letter].append(person)
+		context['abc_buttons'] = buttons
 
 		return context
 
