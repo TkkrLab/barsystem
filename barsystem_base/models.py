@@ -55,7 +55,6 @@ class Person(models.Model):
     nick_name  = models.CharField(max_length=100)
     amount     = models.DecimalField(default=0.0, max_digits=10, decimal_places=2)
     type       = models.CharField(max_length=100, blank=True, null=True, default=None)
-    token      = models.CharField(max_length=100, blank=True, null=True, default=None)
 
     active     = models.BooleanField(default=True)
     member     = models.BooleanField(default=False)
