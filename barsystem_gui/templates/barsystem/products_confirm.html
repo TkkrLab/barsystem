@@ -26,9 +26,9 @@
 	<table class="table">
 		<thead>
 			<tr>
-				<th>Product</th>
-				<th>Aantal</th>
-				<th>Prijs</th>
+				<th>{% trans 'Product' %}</th>
+				<th>{% trans 'Quantity' %}</th>
+				<th>{% trans 'Amount' %}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -44,27 +44,27 @@
 </div>
 <div class="row total-line">
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Total</div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Total' %}</div>
 	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{total|money_display}}</div>
 </div>
 <div class="row total-line">
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Balance</div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Balance' %}</div>
 	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{balance|money_display}}</div>
 </div>
 <div class="row total-line">
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">New balance</div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'New balance' %}</div>
 	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{new_balance|money_display}}</div>
 </div>
 <div class="row total-line">
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Limit</div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Limit' %}</div>
 	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{balance_limit|money_display}}</div>
 </div>
 <div class="row total-line">
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Can checkout</div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Can checkout' %}</div>
 	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{checkout_permitted}}</div>
 </div>
 <hr />
