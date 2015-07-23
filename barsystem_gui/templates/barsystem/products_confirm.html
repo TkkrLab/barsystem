@@ -70,9 +70,11 @@
 <hr />
 <form method="post" action="{% url 'products_confirm' %}">
 {% csrf_token %}
-<div class="buttons btn-group col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<button class="btn btn-primary btn-lg" type="submit" name="action" value="confirm"{% if not checkout_permitted %} disabled="disabled"{% endif %}>{% trans 'Confirm' %}</button>
-	<button class="btn btn-default btn-lg" type="submit" name="action" value="back">{% trans 'Back' %}</button>
+<div class="row">
+	<div class="btn-group">
+		<button class="btn btn-primary btn-lg" type="submit" name="action" value="confirm"{% if not checkout_permitted %} disabled="disabled"{% endif %}>{% trans 'Confirm' %}</button>
+		<button class="btn btn-default btn-lg" type="submit" name="action" value="back">{% trans 'Back' %}</button>
+	</div>
 </div>
 </form>
 </div>
