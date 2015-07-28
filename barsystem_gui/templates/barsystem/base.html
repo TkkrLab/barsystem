@@ -1,0 +1,54 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<title>{% block title %}TkkrLab Barsystem{% endblock %}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap-theme.min.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
+{% block css %}{% endblock %}
+
+<script type="text/javascript" src="{% static 'js/jquery-2.1.3.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap-3.3.4-dist/js/bootstrap.min.js' %}"></script>
+{% block javascript %}{% endblock %} 
+</head>
+<body>
+
+<nav class="navbar navbar-inverse navbar-static-top">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-target="#navbar-collapse-1" data-toggle="collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand">TkkrLab Barsystem</a>
+		</div>
+		<div id="navbar-collapse-1" class="collapse navbar-collapse">
+			{% block navextra %}{% endblock %}
+			<div class="navbar-right">
+				<span class="navbar-text" id="timeout-count"></span>
+				{% block navright %}{% endblock %}
+				<div class="btn-group">
+					{% block navbuttons %}{% endblock %}
+				</div>
+			</div>
+		</div>
+	</div>
+</nav>
+
+<div class="container">
+
+{% include 'barsystem/messages.html' %}
+
+{% block content %}{% endblock %}
+</div>
+
+{% block extracontent %}{% endblock %}
+
+</body>
+</html>
