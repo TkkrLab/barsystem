@@ -1,29 +1,19 @@
+{% extends 'barsystem/base.html' %}
 {% load staticfiles %}
 {% load i18n %}
 {% load l10n %}
 {% load money_display %}
 
-{% regroup products by category as products_by_category %}
-
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-<title>Products</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap.min.css' %}">
-<link rel="stylesheet" href="{% static 'bootstrap-3.3.4-dist/css/bootstrap-theme.min.css' %}">
-
-<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'css/products.css' %}" />
+{% block title %}Products{% endblock %}
+{% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/keyboard.css' %}" />
-<script type="text/javascript" src="{% static 'js/jquery-2.1.3.js' %}"></script>
+{% endblock %}
+{% block javascript %}
 <script type="text/javascript" src="{% static 'js/complete.ly.1.0.1.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/util.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/products.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/keyboard.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap-3.3.4-dist/js/bootstrap.min.js' %}"></script>
-
+<script type="text/javascript" src="{% static 'js/timeout.js' %}"></script>
 <script type="text/javascript">
 var socketEnable = {% if bar %}true{% else %}false{% endif %};
 
@@ -42,6 +32,10 @@ $(function(){
 		});
 	}
 	{% endif %}
+	$('#btn-checkout').click(function()
+	{
+		$('#cart').submit();
+	});
 })
 </script>
 <script type="text/javascript">
@@ -67,89 +61,80 @@ var products = {
 };
 var cart = {{cart.js|safe}};
 </script>
-</head>
-<body>
+{% endblock %}
 
-<div class="container page">
+{% block navright %}
+{% if person %}
+<p class="navbar-text">User: {{ person.nick_name }}, saldo: <span class="balance{% if person.amount < 0 %} negative{% endif %}">{{ person.amount|money_display }}</span></p>
+{% endif %}
+{% endblock %}
+{% block navbuttons %}
+	<a id="btn-cancel" class="btn btn-default navbar-btn" href="{% url 'index' %}">{% trans 'Cancel' %}</a>
+{% endblock %}
 
-<div class="row">
-<h1 class="col-xs-12 col-sm-6 col-md-4 col-lg-4">TkkrLab barsystem</h1>
-{% if person %}<h2 class="col-xs-12 col-sm-6 col-md-8 col-lg-8">User: {{ person.nick_name }}&nbsp;&nbsp; saldo <span class="balance{% if person.amount < 0 %} negative{% endif %}">{{ person.amount|money_display }}</span></h2>{% endif %}
-</div>
+{% block content %}
 
-{% include 'barsystem/messages.html' %}
+{% regroup products by category as products_by_category %}
 
 <!-- products -->
-<div id="products" class="col-xs-8 col-sm-8 col-md-9 col-lg-9">
-<div role="tabpanel">
-<ul class="nav nav-pills" role="tablist">
-<li class="active"><a data-toggle="tab" data-target="#category_popular">{% trans 'Popular' %}</a></li>
-{% for group in products_by_category %}
-<li role="presentation">
-{% if group.grouper == None %}
-<a role="tab" data-toggle="tab" data-target="#category_unsorted">{% trans 'Unsorted' %}</a>
-{% else %}
-<a role="tab" data-toggle="tab" data-target="#category_{{group.grouper.id}}">{{group.grouper.name}}</a>
-{% endif %}
-</li>
-{% endfor %}
-</ul>
-<div id="tabContent" class="tab-content">
-<div class="tab-pane active" id="category_popular">
-{% with products=popular_products %}
-{% include 'barsystem/products.inc.html' %}
-{% endwith %}
-</div>
-{% for group in products_by_category %}
-{% if group.grouper == None %}
-<div class="tab-pane" id="category_unsorted">
-{% else %}
-<div class="tab-pane" id="category_{{group.grouper.id}}">
-{% endif %}
-{% with products=group.list %}
-{% include 'barsystem/products.inc.html' %}
-{% endwith %}
-</div>
-{% endfor %}
-</div>
-</div>
+<div id="products" class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
+	<div role="tabpanel">
+		<ul class="nav nav-pills" role="tablist">
+			<li class="active"><a data-toggle="tab" data-target="#category_popular">{% trans 'Popular' %}</a></li>
+			{% for group in products_by_category %}
+			<li role="presentation">
+			{% if group.grouper == None %}
+			<a role="tab" data-toggle="tab" data-target="#category_unsorted">{% trans 'Unsorted' %}</a>
+			{% else %}
+			<a role="tab" data-toggle="tab" data-target="#category_{{group.grouper.id}}">{{group.grouper.name}}</a>
+			{% endif %}
+			</li>
+			{% endfor %}
+			<li><a data-toggle="tab" data-target="#category_special">{% trans 'Special products' %}</a></li>
+		</ul>
+		<div id="tabContent" class="tab-content">
+			<div class="tab-pane active" id="category_popular">
+			{% with products=popular_products %}
+			{% include 'barsystem/products.inc.html' %}
+			{% endwith %}
+			</div>
+
+			{% for group in products_by_category %}
+			<div class="tab-pane" id="category_{% if group.grouper == None %}unsorted{% else %}{{group.grouper.id}}{% endif %}">
+			{% with products=group.list %}
+			{% include 'barsystem/products.inc.html' %}
+			{% endwith %}
+			</div>
+			{% endfor %}
+
+			<div class="tab-pane" id="category_special">
+			{% with products=special_products %}
+			{% include 'barsystem/products.inc.html' %}
+			{% endwith %}
+			</div>
+		</div>
+	</div>
 </div>
 <!-- end products -->
 
 <!-- cart -->
-<form id="cart" method="post" action="{% url 'products' %}" class="col-xs-4 col-sm-4 col-md-3">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<form id="cart" method="post" action="{% url 'products' %}">
 	{% csrf_token %}
-	<div id="cart-buttons">
-		<div class="row">
-			<div class="btn-group">
-				<button class="btn btn-primary btn-lg" type="submit" name="action" value="ok">{% trans 'Checkout' %}</button>
-				<button class="btn btn-default btn-lg" type="submit" name="action" value="cancel">{% trans 'Cancel' %}</button>
-			</div>
-		</div>
-		<hr class="row" />
-		<div class="row">
-		{% for product in special_products %}
-		<div class="product col-xs-12 col-sm-12 col-md-12" data-product-id="{{product.id}}">
-			<div>
-				<span class="name">{{ product.name }}</span>
-				<br />
-				<span class="price">{{product.price|money_display}}</span>
-			</div>
-		</div>
-		{% endfor %}
-		</div>
-		<hr class="row" />
-	</div>
+	<button class="btn btn-primary btn-lg btn-block" type="submit">{% trans 'Checkout' %}</button>
+	<hr class="row" />
 	<div id="cart-total" class="row">{% trans 'Total' %}: <span id="cart-total-price"></span></div>
 	<ul id="cart-items" class="">
 	</ul>
 </form>
+</div>
 <!-- end cart -->
 
 <!--div id="cmdline" class="col-xs-8 col-md-8 col-sm-8"><div></div></div-->
 
-</div><!-- page -->
+{% endblock %}
 
+{% block extracontent %}
 <div id="enter-quantity" class="modal">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -224,6 +209,4 @@ var cart = {{cart.js|safe}};
 </li>
 </script>
 <!-- end template -->
-
-</body>
-</html>
+{% endblock %}

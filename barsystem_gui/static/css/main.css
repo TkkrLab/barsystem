@@ -1,58 +1,10 @@
 /* main.css */
 
-h1, h2 {
-	margin: 2px 0;
-	padding: 0;
-	font-size: 20px;
-}
-
-h2 {
-	text-align: right;
-}
-
-.button.action > div {
-	line-height: 52px;
-}
-
-.button-big {
-	border: 2px solid black;
-	border-radius: 5px;
-	cursor: pointer;
-	background-color: #fff;
-	color: #000;
-	margin: 1px;
-	padding: 0 2px;
-	text-decoration: none;
-	width: 150px;
-	height: 60px;
-}
-.button-big:hover {
-	border-color: #ee0;
-}
-
-.button-big.disabled {
-	cursor: default;
-	color: gray;
-	border-color: gray;
-}
-.button-big.disabled:hover {
-	border-color: gray;
-}
-
-.button-big.inline {
-	display: inline-block;
-}
-
 .name {
 	font-weight: bold;
 }
 .money.negative {
 	color: red;
-}
-
-.pagination .button-big {
-	display: inline-block;
-	text-align: center;
 }
 
 .button-big > div {
@@ -68,6 +20,7 @@ h2 {
 	text-align: right;
 }
 
+/* hide spinner for <input type="number" /> in chrome & mozilla */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -76,4 +29,55 @@ input[type=number]::-webkit-inner-spin-button {
 
 input[type=number] {
     -moz-appearance:textfield;
+}
+
+/* products.css */
+
+/* ------ cart & product ----- */
+
+.product {
+	padding: 2px;
+}
+
+.product > div {
+	background-color: #fff;
+	border: 2px solid black;
+	border-radius: 5px;
+	cursor: pointer;
+	padding: 2px;
+	padding-left: 4px;
+	min-height: 62px;
+}
+.product:hover > div {
+	border-color: #ee0;
+}
+
+/* ------------- products ----------------- */
+
+.product.in-cart > div {
+	background-color: yellow;
+}
+.product img {
+	margin: 2px;
+	float: right;
+	height: 48px;
+}
+
+/* ---------------- cart ------------------- */
+
+#cart-items {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#cart-total {
+	font-size: 1.2em;
+}
+
+/* --------- other -------- */
+
+.balance.negative {
+	color: red;
+	font-weight: bold;
 }

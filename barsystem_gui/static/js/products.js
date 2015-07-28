@@ -244,7 +244,7 @@ $(function(){
 	}
 
 	// enable actions for clicking on product / cart item
-	$('.product').click(function()
+	$('#products .product').click(function()
 	{
 		add_cart($(this).data('product-id'), 1);
 	});
