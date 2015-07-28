@@ -103,13 +103,16 @@ class IndexView(TemplateView):
 			if person.active:
 				request.session['person_id'] = person.id
 				if person.special and person.type == 'attendant':
+					request.session['attendant'] = True
 					return HttpResponseRedirect(reverse('people'))
+				else:
+					request.session['attendant'] = False
 				return HttpResponseRedirect(reverse('products'))
 
 		return HttpResponseRedirect(reverse('index'))
 
 	def get_context_data(self, **kwargs):
-		for key in ('person_id', 'cart'):
+		for key in ('person_id', 'cart', 'attendant'):
 			if key in self.request.session:
 				del self.request.session[key]
 
@@ -279,12 +282,16 @@ class PeopleView(TemplateView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 
-		is_attendant = False
+		is_attendant = self.request.session.get('attendant', False)
 
-		if is_attendant:
-			people = Person.objects.filter(active=True, special=False)
-		else:
-			people = Person.objects.filter(active=True, special=False, member=False)
+		person_filter = {
+			'active': True,
+			'special': False,
+		}
+		if not is_attendant:
+			person_filter['member'] = False
+
+		people = Person.objects.filter(**person_filter)
 
 		context['pagination_on'] = self.pagination_on
 
