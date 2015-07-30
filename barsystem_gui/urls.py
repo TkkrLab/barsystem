@@ -11,5 +11,5 @@ urlpatterns = patterns('',
 	url(r'^products/confirm/$', views.ProductsConfirmView.as_view(), name='products_confirm'),
 	url(r'^create_account/$', views.CreateAccountView.as_view(), name='create_account'),
 	url(r'^delete_account/$', views.DeleteAccountView.as_view(), name='delete_account'),
-	url(r'', views.IndexView.as_view(), name='index'),
+	url(r'^$', views.IndexView.as_view(), name='index'),
 )

@@ -15,24 +15,11 @@ from decimal import Decimal
 import json
 from collections import OrderedDict
 
-from django.db.models.aggregates import Aggregate
-class IsNull(Aggregate):
-	function = 'ISNULL'
+from django.db.models import Aggregate
+class IsNull(Func):
+	function = 'IFNULL'
+	template = 'case when %(function)s(%(expressions)s, 0) = 0 then 1 else 0 end'
 	name = 'IsNull'
-
-"""
-TODO
-cart model:
-{
-	$product_id: {
-		'product_id': $product_id,
-		'quantity': $quantity,
-		'sender': $sender,
-		'recipient': $recipient
-	}
-}
-
-"""
 
 """
 Flow:
@@ -92,7 +79,6 @@ class IndexView(TemplateView):
 		token_match = re.match(r'^([a-z0-9_]+){(.+)}$', message)
 		if token_match:
 			type, value = token_match.groups()
-			print(type, value)
 			try:
 				token = Token.objects.get(type=type, value=value)
 			except Token.DoesNotExist:
