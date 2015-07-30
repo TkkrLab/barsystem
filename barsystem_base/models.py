@@ -15,8 +15,8 @@ class ProductCategory(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = _('Product category')
-        verbose_name_plural = _('Product categories')
+        verbose_name = _('product category')
+        verbose_name_plural = _('product categories')
 
 class Product(models.Model):
     QUANTITY_TYPE_CHOICES = (

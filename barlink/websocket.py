@@ -437,7 +437,7 @@ class ConsoleMonitor(Monitor):
             time.sleep(0.1)
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.WARNING)
     serial_monitor = SerialMonitor()
     console_monitor = ConsoleMonitor()
     s = WebSocketServer([serial_monitor, console_monitor])
