@@ -16,7 +16,7 @@ import json
 from collections import OrderedDict
 
 from django.db.models import Aggregate
-class IsNull(Func):
+class IsNull(Aggregate):
 	function = 'IFNULL'
 	template = 'case when %(function)s(%(expressions)s, 0) = 0 then 1 else 0 end'
 	name = 'IsNull'
