@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 DIR=$(dirname $(readlink -f $0))
 cd $DIR
@@ -26,7 +26,7 @@ echo "Creating database and static dir"
 
 NGINX_CONF_PATH=`nginx -V 2>&1 | grep -e "--prefix=" | tr ' ' '\n' | grep "^--prefix=" | awk -F= '{print $2}'`
 
-if [[ -z $NGINX_CONF_PATH ]];
+if [[ -z $NGINX_CONF_PATH ]]; then
 	echo "Cannot detect nginx config path!"
 	exit -5
 fi
