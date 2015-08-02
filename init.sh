@@ -3,9 +3,9 @@
 DIR=$(dirname $(readlink -f $0))
 cd $DIR
 
-if [[ ! -x "$DIR/bin/activate" ]]; then
+if [[ ! -e "$DIR/bin/activate" ]]; then
 	echo "Creating virtualenv"
-	virtualenv3 . || exit -1
+	virtualenv3 . || virtualenv-3.4 . || exit -1
 fi
 
 echo "Activating virtualenv"
