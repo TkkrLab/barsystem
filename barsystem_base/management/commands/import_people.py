@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from barsystem_base.models import Person, Token
+from decimal import Decimal
 
 class Command(BaseCommand):
     args = '<filename>'
@@ -20,12 +21,14 @@ class Command(BaseCommand):
                     continue
                 values = dict(zip(columns, line))
 
-                values['active'] = values['type'] != 'hidden'
-
                 try:
                     p = Person.objects.get(id=values['id'])
                 except Person.DoesNotExist:
                     p = Person()
+                    p.active = values['type'] != 'hidden'
+                    p.special = values['type'] == 'special'
+                    p.member = True
+                    p.balance_limit = Decimal(-13.37)
                 for key, val in values.items():
                     if hasattr(p, key):
                         setattr(p, key, val)
