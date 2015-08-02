@@ -1,0 +1,16 @@
+# max upload size
+client_max_body_size 75M;   # adjust to taste
+
+location /media  {
+    alias {{project_directory}}/media;
+}
+
+location /static {
+    alias {{project_directory}}/static;
+}
+
+# Finally, send all non-media requests to the Django server.
+location / {
+    uwsgi_pass  unix://{{project_directory}}/server_config/socket.sock;
+    include     uwsgi_params;
+}
