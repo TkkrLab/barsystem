@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from barsystem_base.models import Person
+from barsystem_base.models import Person, Token
 
 class Command(BaseCommand):
     args = '<filename>'
@@ -31,4 +31,9 @@ class Command(BaseCommand):
                         setattr(p, key, val)
                 print(p)
                 p.save()
+                t = Token()
+                t.type = 'ibutton'
+                t.value = values['token']
+                t.person = p
+                t.save()
         print('Done')
