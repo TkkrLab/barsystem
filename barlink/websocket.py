@@ -296,7 +296,7 @@ import serial.tools.list_ports
 import select
 import threading
 import time
-import pyudev
+# import pyudev
 
 class PortDetect:
     def __init__(self): #, notify_event, vid='16c0', pid='0483'):
@@ -393,17 +393,8 @@ class SerialMonitor(Monitor):
         if old_ibutton:
             data = 'ibutton{' + old_ibutton.group(1) + '}'
         self.notify.on_message(data)
-        # if data[0] == 'i' and data [-1] == 'b':
-        #     ibutton = int(data[1:-1])
-        #     self.window.ibutton_scanned.emit(ibutton)
-        # elif len(data) > 8: # probably barcode?
-        #     barcode = data
-        #     self.window.barcode_scanned.emit(barcode)
-        # else:
-        #     print('Unknown data: {}'.format(data))
 
     def run( self ):
-        # print('running')
         while not self._stop_event.is_set():
             try:
                 r, w, e = select.select([self.serial],[],[], 0.01)
@@ -411,17 +402,14 @@ class SerialMonitor(Monitor):
                     try:
                         self.buffer += self.serial.read()
                     except serial.SerialException as e:
-                        # print('serial.SerialException: ', e)
                         raise e
                         time.sleep(0.5)
                     while b'\r' in self.buffer:
                         line, self.buffer = self.buffer.split(b'\r', 1)
                         self.processInput(line.strip())
             except Exception as e:
-                # print('Exception: ', repr(e))
                 time.sleep(2)
                 self.reconnect()
-        # print('stopping')
         if self.serial:
             self.serial.close()
 
