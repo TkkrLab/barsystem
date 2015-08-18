@@ -5,7 +5,7 @@ cd $DIR
 
 if [[ ! -e "$DIR/bin/activate" ]]; then
 	echo "Creating virtualenv"
-	virtualenv3 . || virtualenv-3.4 . || exit -1
+	virtualenv -p python3 . || exit -1
 fi
 
 echo "Activating virtualenv"
@@ -16,13 +16,15 @@ pip install -r requirements.txt || exit -3
 
 if [[ ! -x "$DIR/manage.py" ]]; then
 	echo "Generating default config"
-	django-admin startproject --template=init --name=nginx_params barsystem . || exit -4
+	django-admin startproject --template=init --name=nginx_params,init.sysv,init.upstart barsystem . || exit -4
 fi
 
 echo "Creating database and static dir"
 ./manage.py migrate
 ./manage.py collectstatic --noinput
 ./manage.py compilemessages
+echo "Creating superuser"
+./manage.py createsuperuser
 
 NGINX_CONF_PATH=`nginx -V 2>&1 | grep -e "--prefix=" | tr ' ' '\n' | grep "^--prefix=" | awk -F= '{print $2}'`
 
@@ -39,3 +41,5 @@ sudo ln -s $DIR/server_config/nginx_params $NGINX_CONF_PATH/barsystem_params
 
 echo "Just add \"include barsystem_params\" in a \"server { }\" block to $NGINX_CONF_PATH/nginx.conf and restart nginx."
 echo "After that launch launcher.sh (preferably on boot), and the bar should run."
+echo "SysV: linking $DIR/init.sysv to /etc/init.d/barsystem and running \"update-rc.d barsystem defaults\" should achieve this."
+echo "Upstart: linking $DIR/init.upstart to /etc/init/barsystem.conf and doing the upstart magic should do this."
