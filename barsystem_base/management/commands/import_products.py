@@ -25,12 +25,13 @@ class Command(BaseCommand):
                     continue
                 values = dict(zip(columns, line))
 
-                values['active'] = values['type'] == 'normal'
-                values['special'] = values['type'] == 'special'
+                p = Product()
+
                 for old, new in self.column_mapping.items():
                     values[new] = values[old]
                     del values[old]
-                p = Product()
+                p.active = values['type'] == 'normal'
+                p.special = values['type'] == 'special'
                 for key, val in values.items():
                     if hasattr(p, key):
                         setattr(p, key, val)
