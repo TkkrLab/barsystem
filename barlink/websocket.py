@@ -392,7 +392,7 @@ class SerialMonitor(Monitor):
         old_ibutton = re.match(r'^i(\d+)b$', data)
         if old_ibutton:
             data = 'ibutton{' + old_ibutton.group(1) + '}'
-        self.notify.on_message(data)
+        self.notify(data)
 
     def run( self ):
         while not self._stop_event.is_set():
