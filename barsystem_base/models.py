@@ -43,7 +43,7 @@ class Product(models.Model):
         return self.name
 
     def get_price(self, person, quantity=Decimal(1)):
-        return (self.member_price if isinstance(person, Person) and person.member else self.standard_price) * quantity
+        return (self.member_price if isinstance(person, Person) and person.member and person.amount >= Decimal(0) else self.standard_price) * quantity
 
     class Meta:
         verbose_name = _('product')

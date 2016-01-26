@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Person, Product, ProductCategory, Journal, Token
+import barsystem_base.functions
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
@@ -8,8 +9,13 @@ class PersonAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'active', 'special', 'type', 'category')
+    list_display = ('name', 'active', 'special', 'type', 'category', 'member_price_', 'standard_price_')
     ordering = ('id',)
+
+    def member_price_(self, obj):
+        return barsystem_base.functions.money_display(obj.member_price)
+    def standard_price_(self, obj):
+        return barsystem_base.functions.money_display(obj.standard_price)
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
@@ -22,4 +28,4 @@ class JournalAdmin(admin.ModelAdmin):
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
-	list_display = ('person', 'type', 'value')
+    list_display = ('person', 'type', 'value')
