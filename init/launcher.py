@@ -16,7 +16,7 @@ def main(argv):
 	with open('bin/activate_this.py') as f:
 		exec(f.read(), dict(__file__='bin/activate_this.py'))
 
-	uwsgi = subprocess.Popen(['uwsgi', '--module=barsystem.wsgi:application', '--master', '--vacuum', '--workers=5', '--socket=server_config/socket.sock', '--chmod=777'])
+	uwsgi = subprocess.Popen(['uwsgi', '--ini=server_config/uwsgi.ini'])
 	barlink = subprocess.Popen(['python', 'barlink/websocket.py'])
 	try:
 		uwsgi.wait()
