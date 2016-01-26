@@ -43,7 +43,7 @@ var products = {
 {% for product in products %}
 	{{ product.id }}: {
 		id: {{ product.id }},
-		name: "{{ product.name | safe }}",
+		name: "{{ product.display_name | safe }}",
 		price: {{ product.price|unlocalize }},
 		quantity_type: "{{ product.quantity_type }}",
 		unit: "{{ product.unit }}",
@@ -52,7 +52,7 @@ var products = {
 {% for product in special_products %}
 	{{ product.id }}: {
 		id: {{ product.id }},
-		name: "{{ product.name }}",
+		name: "{{ product.display_name }}",
 		price: {{ product.price|unlocalize }},
 		quantity_type: "{{ product.quantity_type }}",
 		unit: "{{ product.unit }}",
@@ -80,9 +80,11 @@ var cart = {{cart.js|safe}};
 <div id="products" class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
 	<div role="tabpanel">
 		<ul class="nav nav-pills" role="tablist">
+{% comment %}
 			<li class="active"><a data-toggle="tab" data-target="#category_popular">{% trans 'Popular' %}</a></li>
+{% endcomment %}
 			{% for group in products_by_category %}
-			<li role="presentation">
+			<li role="presentation"{% if forloop.first %} class="active"{%endif%}>
 			{% if group.grouper == None %}
 			<a role="tab" data-toggle="tab" data-target="#category_unsorted">{% trans 'Unsorted' %}</a>
 			{% else %}
@@ -93,14 +95,16 @@ var cart = {{cart.js|safe}};
 			<li><a data-toggle="tab" data-target="#category_special">{% trans 'Special products' %}</a></li>
 		</ul>
 		<div id="tabContent" class="tab-content">
+{% comment %}
 			<div class="tab-pane active" id="category_popular">
 			{% with products=popular_products %}
 			{% include 'barsystem/products.inc.html' %}
 			{% endwith %}
 			</div>
+{% endcomment %}
 
 			{% for group in products_by_category %}
-			<div class="tab-pane" id="category_{% if group.grouper == None %}unsorted{% else %}{{group.grouper.id}}{% endif %}">
+			<div class="tab-pane{% if forloop.first %} active{%endif%}" id="category_{% if group.grouper == None %}unsorted{% else %}{{group.grouper.id}}{% endif %}">
 			{% with products=group.list %}
 			{% include 'barsystem/products.inc.html' %}
 			{% endwith %}
@@ -199,7 +203,7 @@ var cart = {{cart.js|safe}};
 </div>
 
 <!-- cart item template -->
-<script type="text/template" id="templateCartItem">
+<template id="templateCartItem">
 <li class="product cart-product row col-md-12 col-sm-12" data-product-id="{id}">
 <div>
 {quantity} {unit} <strong>{name}</strong><br />
@@ -207,6 +211,6 @@ var cart = {{cart.js|safe}};
 <input type="hidden" name="products[{id}][quantity]" value="{quantity}" />
 </div>
 </li>
-</script>
+</template>
 <!-- end template -->
 {% endblock %}

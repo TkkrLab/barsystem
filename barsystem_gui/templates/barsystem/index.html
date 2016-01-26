@@ -40,6 +40,22 @@
 {% endblock %}
 {% endif %}
 
+{% block navnocollapse %}
+	<button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		<span class="glyphicon glyphicon-align-left glyphicon-globe" aria-hidden="true"></span> <span class="caret"></span>
+	</button>
+	<ul class="dropdown-menu">
+		{% get_current_language as LANGUAGE_CODE %}
+		{% get_available_languages as LANGUAGES %}
+		{% get_language_info_list for LANGUAGES as languages %}
+		{% for language in languages %}
+			<li value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}>
+				<a href="#">{{ language.name_local }} ({{ language.code }})</a>
+			</li>
+		{% endfor %}
+	</ul>
+{% endblock %}
+
 {% block content %}
 <img class="col-xs-12 col-sm-6 col-md-4" align="center" src="{% static 'img/mainpage_logo.png' %}" />
 

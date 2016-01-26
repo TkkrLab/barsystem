@@ -1,15 +1,30 @@
 from django.contrib import admin
-from .models import Person, Product, ProductCategory, Journal, Token
+from django.conf import settings
+from .models import Person, Product, ProductTranslation, ProductCategory, Journal, Token
+import barsystem.functions
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('id', 'nick_name', 'active', 'member', 'special', 'first_name', 'last_name', 'amount', 'balance_limit', 'type')
     ordering = ('id',)
 
+class ProductTranslationInlineAdmin(admin.StackedInline):
+    verbose_name = "Translation"
+    verbose_name_plural = "Translations"
+    model = ProductTranslation
+    max_num = len(settings.LANGUAGES)
+    extra = 1
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'active', 'special', 'type', 'category')
+    inlines = [ProductTranslationInlineAdmin,]
+    list_display = ('display_name', 'active', 'special', 'type', 'category', 'member_price_', 'standard_price_')
     ordering = ('id',)
+
+    def member_price_(self, obj):
+        return barsystem.functions.money_display(obj.member_price)
+    def standard_price_(self, obj):
+        return barsystem.functions.money_display(obj.standard_price)
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
@@ -22,4 +37,4 @@ class JournalAdmin(admin.ModelAdmin):
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
-	list_display = ('person', 'type', 'value')
+    list_display = ('person', 'type', 'value')

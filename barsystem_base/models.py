@@ -2,6 +2,9 @@ from django.db import models
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _
 
+from translatable.models import TranslatableModel, get_translation_model
+from translatable.exceptions import MissingTranslation
+
 from datetime import datetime
 import pytz
 from decimal import Decimal
@@ -18,7 +21,7 @@ class ProductCategory(models.Model):
         verbose_name = _('product category')
         verbose_name_plural = _('product categories')
 
-class Product(models.Model):
+class Product(TranslatableModel):
     QUANTITY_TYPE_CHOICES = (
         ('None', _('None')),
         ('enter_numeric', _('Numeric input'))
@@ -40,14 +43,23 @@ class Product(models.Model):
     category      = models.ForeignKey('ProductCategory', null=True, blank=True, default=None)
 
     def __str__(self):
-        return self.name
+        return self.display_name()
+
+    def display_name(self):
+        try:
+            return self.get_translation().name
+        except MissingTranslation:
+            return self.name
 
     def get_price(self, person, quantity=Decimal(1)):
-        return (self.member_price if isinstance(person, Person) and person.member else self.standard_price) * quantity
+        return (self.member_price if isinstance(person, Person) and person.member and person.amount >= Decimal(0) else self.standard_price) * quantity
 
     class Meta:
         verbose_name = _('product')
         verbose_name_plural = _('products')
+
+class ProductTranslation(get_translation_model(Product, 'product')):
+    name          = models.CharField(max_length=100)
 
 class Person(models.Model):
     first_name = models.CharField(blank=True, default='', max_length=100)
