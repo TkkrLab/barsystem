@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from barsystem_gui import views
 
-urlpatterns = patterns('',
+urlpatterns = [
 	url(r'^people/$', views.PeopleView.as_view(), name='people'),
 	url(r'^people/set/(?P<person_id>\d+)/$', views.PeopleSetView.as_view(), name='people_set'),
 	url(r'^cart/add/', views.AddToCartView.as_view(), name='add_to_cart'),
@@ -12,4 +12,4 @@ urlpatterns = patterns('',
 	url(r'^create_account/$', views.CreateAccountView.as_view(), name='create_account'),
 	url(r'^delete_account/$', views.DeleteAccountView.as_view(), name='delete_account'),
 	url(r'^$', views.IndexView.as_view(), name='index'),
-)
+]
