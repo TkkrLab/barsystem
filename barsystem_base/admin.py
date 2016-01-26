@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.conf import settings
 from .models import Person, Product, ProductTranslation, ProductCategory, Journal, Token
-import barsystem.functions
+import barsystem_base.functions
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
@@ -22,9 +22,9 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ('id',)
 
     def member_price_(self, obj):
-        return barsystem.functions.money_display(obj.member_price)
+        return barsystem_base.functions.money_display(obj.member_price)
     def standard_price_(self, obj):
-        return barsystem.functions.money_display(obj.standard_price)
+        return barsystem_base.functions.money_display(obj.standard_price)
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
