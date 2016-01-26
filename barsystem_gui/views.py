@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from barsystem_base.models import Person, Product, ProductCategory, Journal, Token
+from barsystem_base.functions import send_overdrawn_mail
 
 import re
 from decimal import Decimal
@@ -221,7 +222,7 @@ class ProductsConfirmView(TemplateView):
 
 			messages.success(request, _('Order completed'))
 			if over_limit:
-				# todo send mail to treasurer and member
+				send_overdrawn_mail(recipient, total)
 				messages.error(request, _('You are over your spending limit, the treasurer has been notified! Please deposit money on your account ASAP.'))
 		return HttpResponseRedirect(reverse('index'))
 
