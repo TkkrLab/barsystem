@@ -103,7 +103,7 @@ class IndexView(TemplateView):
 				del self.request.session[key]
 
 		context = super().get_context_data(**kwargs)
-		context['wanbetalers'] = Person.objects.filter(amount__lt=0).order_by('amount')[:5]
+		context['wanbetalers'] = Person.objects.filter(active=True, amount__lt=0).order_by('amount')[:5]
 
 		context['bar'] = is_bar(self.request)
 
@@ -191,7 +191,8 @@ class ProductsConfirmView(TemplateView):
 		recipient, balance, balance_limit = self.get_person(request)
 
 		if request.POST.get('action', None) == 'confirm':
-			if not self.can_check_out(request):
+			over_limit = self.is_person_over_limit(request)
+			if not self.can_checkout(request):
 				messages.error(request, _('Unable to check out: insufficient funds.'))
 				return HttpResponseRedirect(reverse('products_confirm'))
 
@@ -218,7 +219,10 @@ class ProductsConfirmView(TemplateView):
 				if key in request.session:
 					del request.session[key]
 
-		messages.success(request, _('Order completed'))
+			messages.success(request, _('Order completed'))
+			if over_limit:
+				# todo send mail to treasurer and member
+				messages.error(request, _('You are over your spending limit, the treasurer has been notified! Please deposit money on your account ASAP.'))
 		return HttpResponseRedirect(reverse('index'))
 
 	def get_context_data(self, **kwargs):
@@ -237,7 +241,14 @@ class ProductsConfirmView(TemplateView):
 			total += amount
 		context['total'] = total
 		context['new_balance'] = balance - total
-		context['checkout_permitted'] = self.can_check_out(self.request)
+		context['over_limit'] = over_limit = self.is_person_over_limit(self.request)
+		context['checkout_permitted'] = checkout_permitted = self.can_checkout(self.request)
+		if over_limit:
+			if checkout_permitted:
+				messages.error(self.request, _('Please note that you are going over your spending limit. If you do not deposit money now the treasurer will be notified.'))
+			else:
+				messages.error(self.request, _('Please note that you are unable to checkout because you are going over your spending limit. Please deposit money to your account to be able to checkout.'))
+
 		return context
 
 	def get_person(self, request):
@@ -251,14 +262,28 @@ class ProductsConfirmView(TemplateView):
 			balance_limit = None
 		return person, balance, balance_limit
 
-	def can_check_out(self, request):
+	def is_person_over_limit(self, request):
 		person, balance, balance_limit = self.get_person(request)
 		if balance_limit is None:
-			return True
+			return False
+		total = self.get_total(request)
+		return balance - total < balance_limit
+
+	def get_total(self, request):
+		person, balance, balance_limit = self.get_person(request)
 		total = Decimal(0)
 		for cart_item in Cart(self.request.session['cart']).values():
 			amount = Decimal(cart_item.quantity) * cart_item.product.get_price(person)
 			total += amount
+		return total
+
+	def can_checkout(self, request):
+		person, balance, balance_limit = self.get_person(request)
+		if not person: # cash order
+			return True
+		if person.member:
+			return True
+		total = self.get_total(request)
 		return balance - total >= balance_limit
 
 class PeopleView(TemplateView):
@@ -274,8 +299,8 @@ class PeopleView(TemplateView):
 			'active': True,
 			'special': False,
 		}
-		if not is_attendant:
-			person_filter['member'] = False
+		# if not is_attendant:
+		# 	person_filter['member'] = False
 
 		people = Person.objects.filter(**person_filter)
 
