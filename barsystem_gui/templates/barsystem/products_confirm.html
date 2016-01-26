@@ -14,6 +14,7 @@
 {% endblock %}
 
 {% block content %}
+<div id="products" class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
 <div class="row">
 	<table class="table">
 		<thead>
@@ -32,23 +33,25 @@
 			</tr>
 {% endfor %}
 		</tbody>
+		<tfoot>
+			<tr>
+				<th colspan="2">{% trans 'Total' %}</th>
+				<td>{{total|money_display}}</td>
+			</tr>
+{% if person %}
+			<tr>
+				<th colspan="2">{% trans 'Balance' %}</th>
+				<td>{{balance|money_display}}</td>
+			</tr>
+			<tr>
+				<th colspan="2">{% trans 'New balance' %}</th>
+				<td>{{new_balance|money_display}}</td>
+			</tr>
+{% endif %}
+		</tfoot>
 	</table>
 </div>
-<div class="row total-line">
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Total' %}</div>
-	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{total|money_display}}</div>
-</div>
-<div class="row total-line">
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Balance' %}</div>
-	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{balance|money_display}}</div>
-</div>
-<div class="row total-line">
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
-	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'New balance' %}</div>
-	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{new_balance|money_display}}</div>
-</div>
+{% comment %}
 <div class="row total-line">
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Limit' %}</div>
@@ -56,14 +59,20 @@
 </div>
 <div class="row total-line">
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Over limit' %}</div>
+	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{over_limit}}</div>
+</div>
+<div class="row total-line">
+	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
 	<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">{% trans 'Can checkout' %}</div>
 	<div class="value col-xs-4 col-sm-4 col-md-4 col-lg-4">{{checkout_permitted}}</div>
 </div>
-<hr />
+{% endcomment %}
+</div>
+<div class="col-xs-12 col-sm-4 col-md-3">
 <form method="post" action="{% url 'products_confirm' %}">
 {% csrf_token %}
-<div class="row">
-	<button class="btn btn-primary btn-lg" type="submit" name="action" value="confirm"{% if not checkout_permitted %} disabled="disabled"{% endif %}>{% trans 'Confirm' %}</button>
-</div>
+<button class="btn btn-primary btn-lg btn-block" type="submit" name="action" value="confirm"{% if not checkout_permitted %} disabled="disabled"{% endif %}>{% trans 'Confirm' %}</button>
 </form>
+</div>
 {% endblock %}
