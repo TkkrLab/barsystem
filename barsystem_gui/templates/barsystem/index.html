@@ -44,11 +44,26 @@
 <img class="col-xs-12 col-sm-6 col-md-4" align="center" src="{% static 'img/mainpage_logo.png' %}" />
 
 <div class="col-xs-12 col-sm-6 col-md-8">
-<a class="btn btn-default btn-lg btn-block" href="{% url 'products' %}">{% trans 'Cash order' %}</a>
-<a class="btn btn-default btn-lg btn-block" href="{% url 'people' %}">{% trans 'Choose account' %}</a>
+<a class="btn btn-default btn-lg btn-block" href="{% url 'products' %}">{% trans 'Cash payment' %}</a>
 <a class="btn btn-default btn-lg btn-block" href="{% url 'create_account' %}">{% trans 'Create account' %}</a>
+<a class="btn btn-default btn-lg btn-block" href="{% url 'people' %}">{% trans 'Choose account' %}</a>
 <hr class="row col-xs-12 col-sm-12 col-md-12" />
+<h3>Halp how does this work?</h3>
+<p>
+<strong>Members</strong> use their iButton as they are used to.<br />
+This will log you in automagically.
+
+</p>
+<p>
+<strong>Guests</strong> have 2 options:
+<ol>
+<li>Create account, pre-pay some money.<br />
+They can then choose their account to buy more stuff (please be nice and pick your own account).</li>
+<li>Cash payment:<br />
+Choose cash payment and pay immediatly for your stuff.</li>
+</ol>
 {% if wanbetalers %}
+<hr class="row col-xs-12 col-sm-12 col-md-12" />
 <div class="row col-xs-12 col-sm-12 col-md-12">
 <div>
 <span>Top 5 wanbetalers: </span>

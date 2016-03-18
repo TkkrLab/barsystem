@@ -104,7 +104,7 @@ class IndexView(TemplateView):
 				del self.request.session[key]
 
 		context = super().get_context_data(**kwargs)
-		context['wanbetalers'] = Person.objects.filter(active=True, amount__lt=0).order_by('amount')[:5]
+		# context['wanbetalers'] = Person.objects.filter(active=True, amount__lt=0).order_by('amount')[:5]
 
 		context['bar'] = is_bar(self.request)
 
@@ -300,8 +300,8 @@ class PeopleView(TemplateView):
 			'active': True,
 			'special': False,
 		}
-		# if not is_attendant:
-		# 	person_filter['member'] = False
+		if not is_attendant:
+			person_filter['member'] = False
 
 		people = Person.objects.filter(**person_filter)
 
@@ -328,7 +328,7 @@ class PeopleView(TemplateView):
 			for person in people:
 				if person.nick_name.upper().startswith(letter):
 					buttons[letter].append(person)
-		context['abc_buttons'] = buttons
+		# context['abc_buttons'] = buttons
 
 		return context
 

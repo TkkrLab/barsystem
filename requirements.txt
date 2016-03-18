@@ -1,4 +1,5 @@
-django==1.8.3
+django
+django-translatable
 pytz
 python-dateutil
 Pillow
