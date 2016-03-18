@@ -10,7 +10,6 @@ import threading
 import time
 import logging
 
-from django.utils.datastructures import MultiValueDict
 
 def readlines(sock, recv_buffer=4096, delim='\n'):
     buffer = ''
@@ -70,7 +69,7 @@ class WebSocketConnection:
     def handshake(self):
         reply = ''
         request_path = ''
-        headers = MultiValueDict()
+        headers = {}
         for line in readlines(self.socket, delim='\r\n'):
             # print('RECV: {}'.format(line))
             if len(line) == 0:
@@ -86,7 +85,7 @@ class WebSocketConnection:
             if not ':' in line:
                 continue
             key, value = header_split(line)
-            headers.appendlist(key, value)
+            headers[key] = value
             # print(key, value)
             # if line.startswith('Sec-WebSocket'):
             #     print(line)
@@ -425,7 +424,7 @@ class ConsoleMonitor(Monitor):
             time.sleep(0.1)
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.WARNING)
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
     serial_monitor = SerialMonitor()
     console_monitor = ConsoleMonitor()
     s = WebSocketServer([serial_monitor, console_monitor])
