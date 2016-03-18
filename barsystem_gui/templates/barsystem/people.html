@@ -23,6 +23,7 @@ $(function()
 {% block content %}
 <h4>{% trans 'Choose account' %}</h4>
 
+{% if abc_buttons %}
 <div role="tabpanel">
 <ul class="nav nav-pills" role="tablist">
 {% for letter, people in abc_buttons.items %}
@@ -43,6 +44,13 @@ $(function()
 </div>
 {% endfor %}
 </div>
+{% else %}
+{% for person in people %}
+<div class="col-xs-12 col-sm-4 col-md-3">
+<a href="{% url 'people_set' person.id %}" class="btn btn-default btn-lg btn-block">{{person}}</a>
+</div>
+{% endfor %}
+{% endif %}
 
 {% if pagination_on %}
 	<div class="row pagination">

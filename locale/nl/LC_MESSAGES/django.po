@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-30 18:16+0200\n"
+"POT-Creation-Date: 2016-03-18 11:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: barsystem/settings.py:95
+msgid "Dutch"
+msgstr ""
+
+#: barsystem/settings.py:96
+msgid "English"
+msgstr ""
 
 #: barsystem_base/models.py:18
 msgid "product category"
@@ -67,7 +75,7 @@ msgstr "Account aanmaken"
 #: barsystem_gui/templates/barsystem/create_account.html:17
 #: barsystem_gui/templates/barsystem/people.html:20
 #: barsystem_gui/templates/barsystem/products.html:72
-#: barsystem_gui/templates/barsystem/products.html:158
+#: barsystem_gui/templates/barsystem/products.html:162
 #: barsystem_gui/templates/barsystem/products_confirm.html:13
 msgid "Cancel"
 msgstr "Annuleren"
@@ -85,46 +93,42 @@ msgid "Initial deposit"
 msgstr "Initiële storting"
 
 #: barsystem_gui/templates/barsystem/create_account.html:32
-#: barsystem_gui/templates/barsystem/products_confirm.html:23
+#: barsystem_gui/templates/barsystem/products_confirm.html:24
 msgid "Amount"
 msgstr "Bedrag"
 
 #: barsystem_gui/templates/barsystem/index.html:47
-msgid "Cash order"
-msgstr "Contante bestelling"
+msgid "Cash payment"
+msgstr "Contante betaling"
 
 #: barsystem_gui/templates/barsystem/index.html:48
 #: barsystem_gui/templates/barsystem/people.html:24
 msgid "Choose account"
 msgstr "Kies account"
 
-#: barsystem_gui/templates/barsystem/products.html:83
-msgid "Popular"
-msgstr "Populair"
-
-#: barsystem_gui/templates/barsystem/products.html:87
+#: barsystem_gui/templates/barsystem/products.html:89
 msgid "Unsorted"
 msgstr "Ongesorteerd"
 
-#: barsystem_gui/templates/barsystem/products.html:93
+#: barsystem_gui/templates/barsystem/products.html:95
 msgid "Special products"
 msgstr "Speciale producten"
 
-#: barsystem_gui/templates/barsystem/products.html:124
+#: barsystem_gui/templates/barsystem/products.html:128
 msgid "Checkout"
 msgstr "Afrekenen"
 
-#: barsystem_gui/templates/barsystem/products.html:126
-#: barsystem_gui/templates/barsystem/products_confirm.html:39
+#: barsystem_gui/templates/barsystem/products.html:130
+#: barsystem_gui/templates/barsystem/products_confirm.html:38
 msgid "Total"
 msgstr "Totaal"
 
-#: barsystem_gui/templates/barsystem/products.html:143
+#: barsystem_gui/templates/barsystem/products.html:147
 msgid "Enter quantity"
 msgstr "Voer hoeveelheid in"
 
-#: barsystem_gui/templates/barsystem/products.html:157
-#: barsystem_gui/templates/barsystem/products_confirm.html:66
+#: barsystem_gui/templates/barsystem/products.html:161
+#: barsystem_gui/templates/barsystem/products_confirm.html:75
 msgid "Confirm"
 msgstr "Bevestigen"
 
@@ -136,54 +140,76 @@ msgstr "Geen producten"
 msgid "Back"
 msgstr "Terug"
 
-#: barsystem_gui/templates/barsystem/products_confirm.html:21
+#: barsystem_gui/templates/barsystem/products_confirm.html:22
 msgid "Product"
 msgstr "Product"
 
-#: barsystem_gui/templates/barsystem/products_confirm.html:22
+#: barsystem_gui/templates/barsystem/products_confirm.html:23
 msgid "Quantity"
 msgstr "Hoeveelheid"
 
-#: barsystem_gui/templates/barsystem/products_confirm.html:44
+#: barsystem_gui/templates/barsystem/products_confirm.html:43
 msgid "Balance"
 msgstr "Balans"
 
-#: barsystem_gui/templates/barsystem/products_confirm.html:49
+#: barsystem_gui/templates/barsystem/products_confirm.html:47
 msgid "New balance"
 msgstr "Nieuwe balans"
 
-#: barsystem_gui/templates/barsystem/products_confirm.html:54
-msgid "Limit"
-msgstr "Limiet"
-
-#: barsystem_gui/templates/barsystem/products_confirm.html:59
-msgid "Can checkout"
-msgstr "Kan afrekenen"
-
-#: barsystem_gui/views.py:130
+#: barsystem_gui/views.py:131
 msgid "Nothing in cart"
 msgstr "Winkelwagen is leeg"
 
-#: barsystem_gui/views.py:195
+#: barsystem_gui/views.py:197
 msgid "Unable to check out: insufficient funds."
 msgstr "Kan niet afrekenen: onvoldoende saldo."
 
-#: barsystem_gui/views.py:221
+#: barsystem_gui/views.py:223
 msgid "Order completed"
 msgstr "Order voltooid"
 
-#: barsystem_gui/views.py:333
+#: barsystem_gui/views.py:226
+msgid ""
+"You are over your spending limit, the treasurer has been notified! Please "
+"deposit money on your account ASAP."
+msgstr ""
+
+#: barsystem_gui/views.py:249
+msgid ""
+"Please note that you are going over your spending limit. If you do not "
+"deposit money now the treasurer will be notified."
+msgstr ""
+
+#: barsystem_gui/views.py:251
+msgid ""
+"Please note that you are unable to checkout because you are going over your "
+"spending limit. Please deposit money to your account to be able to checkout."
+msgstr ""
+
+#: barsystem_gui/views.py:359
 msgid "Invalid balance value"
 msgstr "Ongeldige waarde voor balans"
 
-#: barsystem_gui/views.py:333 barsystem_gui/views.py:339
+#: barsystem_gui/views.py:359 barsystem_gui/views.py:365
 msgid "Error"
 msgstr "Fout"
 
-#: barsystem_gui/views.py:339
+#: barsystem_gui/views.py:365
 msgid "Name in use"
 msgstr "Naam is in gebruik"
 
-#: barsystem_gui/views.py:349
+#: barsystem_gui/views.py:375
 msgid "Account created"
 msgstr "Account aangemaakt"
+
+#~ msgid "Cash order"
+#~ msgstr "Contante bestelling"
+
+#~ msgid "Popular"
+#~ msgstr "Populair"
+
+#~ msgid "Limit"
+#~ msgstr "Limiet"
+
+#~ msgid "Can checkout"
+#~ msgstr "Kan afrekenen"

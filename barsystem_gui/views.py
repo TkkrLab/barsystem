@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from barsystem_base.models import Person, Product, ProductCategory, Journal, Token
+from barsystem_base.functions import send_overdrawn_mail
 
 import re
 from decimal import Decimal
@@ -103,7 +104,7 @@ class IndexView(TemplateView):
 				del self.request.session[key]
 
 		context = super().get_context_data(**kwargs)
-		context['wanbetalers'] = Person.objects.filter(active=True, amount__lt=0).order_by('amount')[:5]
+		# context['wanbetalers'] = Person.objects.filter(active=True, amount__lt=0).order_by('amount')[:5]
 
 		context['bar'] = is_bar(self.request)
 
@@ -221,7 +222,7 @@ class ProductsConfirmView(TemplateView):
 
 			messages.success(request, _('Order completed'))
 			if over_limit:
-				# todo send mail to treasurer and member
+				send_overdrawn_mail(recipient, total)
 				messages.error(request, _('You are over your spending limit, the treasurer has been notified! Please deposit money on your account ASAP.'))
 		return HttpResponseRedirect(reverse('index'))
 
@@ -299,8 +300,8 @@ class PeopleView(TemplateView):
 			'active': True,
 			'special': False,
 		}
-		# if not is_attendant:
-		# 	person_filter['member'] = False
+		if not is_attendant:
+			person_filter['member'] = False
 
 		people = Person.objects.filter(**person_filter)
 
@@ -327,7 +328,7 @@ class PeopleView(TemplateView):
 			for person in people:
 				if person.nick_name.upper().startswith(letter):
 					buttons[letter].append(person)
-		context['abc_buttons'] = buttons
+		# context['abc_buttons'] = buttons
 
 		return context
 
