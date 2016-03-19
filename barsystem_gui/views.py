@@ -166,8 +166,6 @@ class ProductsView(TemplateView):
 		context['special_products'] = self.make_product_list(Product.objects.filter(active=True, special=True), person)
 
 		context['cart'] = Cart(self.request.session.get('cart', {}))
-		for c in context['cart'].values():
-			print(c.js())
 
 		context['bar'] = is_bar(self.request)
 		return context
