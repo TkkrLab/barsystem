@@ -1,4 +1,4 @@
-var timeout_max = 6000;
+var timeout_max = 60;
 $(document).ready(function()
 {
     var idle_time = 0;
