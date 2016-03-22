@@ -17,6 +17,8 @@ import json
 from collections import OrderedDict
 
 from django.db.models import Aggregate
+
+
 class IsNull(Aggregate):
 	function = 'IFNULL'
 	template = 'case when %(function)s(%(expressions)s, 0) = 0 then 1 else 0 end'
@@ -48,6 +50,7 @@ class Cart(dict):
 	def js(self):
 		return json.dumps(self)
 
+
 class CartItem(dict):
 	def __getattr__(self, key):
 		if key in self:
@@ -65,9 +68,11 @@ class CartItem(dict):
 	def js(self):
 		return json.dumps(self)
 
+
 def is_bar(request):
 	return True
 	return request.META.get('REMOTE_ADDR') == '127.0.0.1'
+
 
 class IndexView(TemplateView):
 	template_name = 'barsystem/index.html'
@@ -109,6 +114,7 @@ class IndexView(TemplateView):
 		context['bar'] = is_bar(self.request)
 
 		return context
+
 
 class ProductsView(TemplateView):
 	template_name = 'barsystem/products.html'
@@ -170,6 +176,7 @@ class ProductsView(TemplateView):
 		context['bar'] = is_bar(self.request)
 		return context
 
+
 class ProductsGetView(View):
 	def post(self, request, *args, **kwargs):
 		barcode = request.POST.get('code')
@@ -179,6 +186,7 @@ class ProductsGetView(View):
 		except Product.DoesNotExist:
 			return JsonResponse({})
 		return JsonResponse({})
+
 
 class ProductsConfirmView(TemplateView):
 	template_name = 'barsystem/products_confirm.html'
@@ -285,6 +293,7 @@ class ProductsConfirmView(TemplateView):
 		total = self.get_total(request)
 		return balance - total >= balance_limit
 
+
 class PeopleView(TemplateView):
 	template_name = 'barsystem/people.html'
 	pagination_on = False
@@ -330,17 +339,22 @@ class PeopleView(TemplateView):
 
 		return context
 
+
 class PeopleSetView(View):
 	def get(self, request, person_id, *args, **kwargs):
+		is_attendant = self.request.session.get('attendant', False)
 		try:
 			person = Person.objects.get(id=person_id)
-			request.session['person_id'] = person_id
+			if not person.member or is_attendant:
+				request.session['person_id'] = person_id
 		except Person.DoesNotExist:
 			pass
 		return HttpResponseRedirect(reverse('products'))
 
+
 class AddToCartView(View):
 	pass
+
 
 class CreateAccountView(TemplateView):
 	template_name = 'barsystem/create_account.html'
@@ -372,6 +386,7 @@ class CreateAccountView(TemplateView):
 
 		messages.success(request, _('Account created'))
 		return HttpResponseRedirect(reverse('products'))
+
 
 class DeleteAccountView(TemplateView):
 	pass
