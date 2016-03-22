@@ -9,6 +9,7 @@ urlpatterns = [
 	url(r'^products/$', views.ProductsView.as_view(), name='products'),
 	url(r'^products/get/$', views.ProductsGetView.as_view(), name='products_get'),
 	url(r'^products/confirm/$', views.ProductsConfirmView.as_view(), name='products_confirm'),
+	url(r'^transactions/$', views.TransactionsView.as_view(), name='transactions'),
 	url(r'^create_account/$', views.CreateAccountView.as_view(), name='create_account'),
 	url(r'^delete_account/$', views.DeleteAccountView.as_view(), name='delete_account'),
 	url(r'^$', views.IndexView.as_view(), name='index'),

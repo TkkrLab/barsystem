@@ -94,6 +94,10 @@ class Journal(models.Model):
     #     return 'self.moment'
     #     return '{}; {}; {}; {}; {}'.format(localtime(self.moment), self.person, self.product, self.items, self.amount)#, self.total)
 
+    @property
+    def total(self):
+        return self.items * self.amount
+
     class Meta:
         verbose_name = _('journal entry')
         verbose_name_plural = _('journal entries')

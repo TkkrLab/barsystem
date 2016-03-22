@@ -390,3 +390,25 @@ class CreateAccountView(TemplateView):
 
 class DeleteAccountView(TemplateView):
 	pass
+
+
+class TransactionsView(TemplateView):
+	template_name = 'barsystem/transactions.html'
+
+	def get(self, request, *args, **kwargs):
+		person_id = self.request.session.get('person_id', None)
+		if not person_id:
+			return HttpResponseRedirect(reverse('index'))
+		try:
+			person = Person.objects.get(id=person_id)
+		except Person.DoesNotExist:
+			return HttpResponseRedirect(reverse('index'))
+
+		return super().get(request, *args, person=person, **kwargs)
+
+	def get_context_data(self, person, **kwargs):
+		context = super().get_context_data(**kwargs)
+
+		context['transactions'] = Journal.objects.filter(recipient=person)
+
+		return context

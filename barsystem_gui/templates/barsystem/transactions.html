@@ -1,0 +1,43 @@
+{% extends 'barsystem/base.html' %}
+{% load staticfiles %}
+{% load i18n %}
+{% load l10n %}
+{% load money_display %}
+
+
+{% block title %}Transactions{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript" src="{% static 'js/timeout.js' %}"></script>
+{% endblock %}
+
+{% block navbuttons %}
+	<a id="btn-back" class="btn btn-default navbar-btn" href="{% url 'products' %}">{% trans 'Back' %}</a>
+{% endblock %}
+
+{% block content %}
+<table class="table">
+	<thead>
+		<tr>
+			<th>{% trans 'Datum' %}</th>
+			<th>{% trans 'Product' %}</th>
+			<th>{% trans 'Quantity' %}</th>
+			<th>{% trans 'Total' %}</th>
+		</tr>
+	</thead>
+	<tbody>
+{% for transaction in transactions %}
+		<tr>
+			<td>{{ transaction.moment }}</td>
+			<td>{{ transaction.product }}</td>
+			<td>{{ transaction.items }}</td>
+			<td>{{ transaction.total | money_display }}</td>
+		</tr>
+{% empty %}
+		<tr>
+			<td colspan="4">No transactions</td>
+		</tr>
+{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

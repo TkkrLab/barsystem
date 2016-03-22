@@ -69,6 +69,9 @@ var cart = {{cart.js|safe}};
 {% endif %}
 {% endblock %}
 {% block navbuttons %}
+{% if person %}
+	<a id="btn-transactions" class="btn btn-default navbar-btn" href="{% url 'transactions' %}">{% trans 'Transactions' %}</a>
+{% endif %}
 	<a id="btn-cancel" class="btn btn-default navbar-btn" href="{% url 'index' %}">{% trans 'Cancel' %}</a>
 {% endblock %}
 
