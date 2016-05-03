@@ -12,6 +12,7 @@ import threading
 import time
 import logging
 import json
+import os
 
 from receipts import ReceiptPrinter
 
@@ -312,9 +313,16 @@ class Barlink(WebSocketServer):
             logging.warning('Invalid JSON: action field not set.')
             return
         action = data['action']
-        if action == 'print':
+        if action == 'receipt':
+            if not 'products' in data:
+                logging.warning('Invalid request: receipt with no products')
+                return
+            if 'customer_name' in data:
+                customer_name = data['customer_name']
+            else:
+                customer_name = 'guest'
             if self.printer:
-                pass
+                print_receipt(self.printer, customer_name, data['products'])
         elif action == 'drawer':
             if self.printer:
                 self.printer.open_drawer()
@@ -322,6 +330,42 @@ class Barlink(WebSocketServer):
             pass
         else:
             logging.warning('Invalid action: "{}"'.format(action))
+
+def print_receipt(printer, customer_name, products):
+    printer.init()
+    printer.set_code_table('cp858')
+    printer.set_print_mode(printer.PRINTMODE_FONT_A)
+    printer.set_align(printer.ALIGN_CENTER)
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    filename = os.path.join(BASE_DIR, 'logo.pos')
+    if os.path.exists(filename):
+        printer.print_image(filename)
+        printer.feed(1)
+    printer.writeline('*** TkkrLab Barsystem ***')
+    printer.feed(1)
+    printer.set_align(printer.ALIGN_LEFT)
+    printer.writeline('Customer {}'.format(customer_name))
+    printer.writeline('Date: {}'.format(time.strftime('%Y-%m-%d %H:%M:%S')))
+    printer.feed(2)
+
+    printer.set_align(printer.ALIGN_LEFT)
+    printer.set_print_mode(printer.PRINTMODE_FONT_B)
+
+    # products
+    total = 0.0
+    for name, cost in products:
+        total += cost
+        printer.write_product_line(name, cost)
+
+    printer.set_print_mode(printer.PRINTMODE_FONT_A)
+    printer.writeline('-' * 42)
+    printer.set_print_mode(printer.PRINTMODE_FONT_B | printer.PRINTMODE_EMPHASIZED | printer.PRINTMODE_DOUBLE_HEIGHT)
+    printer.write_product_line('Totaal', total)
+    printer.set_print_mode(printer.PRINTMODE_FONT_A)
+
+    printer.feed(6)
+
+    printer.cut(0)
 
 import serial
 import serial.tools.list_ports
@@ -461,7 +505,21 @@ if __name__ == '__main__':
     serial_monitor = SerialMonitor()
     console_monitor = ConsoleMonitor()
 
-    receipt_printer = ReceiptPrinter('/dev/pts/3')
+    try:
+        import settings
+    except ImportError:
+        logging.warning('No settings found.')
+        settings = None
+
+    receipt_printer = None
+
+    try:
+        if settings:
+            receipt_printer = ReceiptPrinter(settings.RECEIPT_PRINTER_PORT)
+    except serial.SerialException:
+        logging.exception('Cannot connect to receipt printer')
+
+    print(settings, receipt_printer)
     s = Barlink([serial_monitor, console_monitor], printer=receipt_printer)
     try:
         s.start()
