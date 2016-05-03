@@ -19,18 +19,33 @@ var socketEnable = {% if bar %}true{% else %}false{% endif %};
 
 $(function(){
 	{% if bar %}
-	var sock = new WebSocket('ws://localhost:1234/ws/products');
-	sock.onmessage = function(evt)
-	{
-		var message = evt.data;
-		$.post("{% url 'products_get' %}", { 'code': message, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data)
+	var barlink = new Barlink({
+		path: 'products',
+		onmessage: function(message)
 		{
-			if(data.product_id)
+			$.post("{% url 'products_get' %}", { 'code': message, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data)
 			{
-				add_cart(data.product_id, 1);
-			}
-		});
-	}
+				if(data.product_id)
+				{
+					add_cart(data.product_id, 1);
+				}
+			});
+		}
+	});
+	barlink.connect();
+
+	$('#connection').click(function()
+	{
+		if($(this).hasClass('fail'))
+		{
+			barlink.reconnect();
+		}
+	});
+
+	$('#btn-drawer').click(function()
+	{
+		if(barlink) barlink.send({action:'drawer'})
+	})
 	{% endif %}
 	$('#btn-checkout').click(function()
 	{
@@ -69,7 +84,11 @@ var cart = {{cart.js|safe}};
 {% endif %}
 {% endblock %}
 {% block navbuttons %}
+{% if bar %}
+	<button id="btn-drawer" class="btn btn-default navbar-btn">Open drawer</button>
+{% endif %}
 {% if person %}
+	<button id="btn-cash-deposit" class="btn btn-default navbar-btn">Cash deposit</button>
 	<a id="btn-transactions" class="btn btn-default navbar-btn" href="{% url 'transactions' %}">{% trans 'Transactions' %}</a>
 {% endif %}
 	<a id="btn-cancel" class="btn btn-default navbar-btn" href="{% url 'index' %}">{% trans 'Cancel' %}</a>
@@ -216,4 +235,5 @@ var cart = {{cart.js|safe}};
 </li>
 </template>
 <!-- end template -->
+<div id="connection"><div></div></div>
 {% endblock %}

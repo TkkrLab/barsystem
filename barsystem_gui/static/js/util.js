@@ -102,3 +102,79 @@ function money_format(val)
 		return self;
 	};
 }(jQuery));
+
+var Barlink = (function(){
+	var socket = null;
+	var connect_errors = 0;
+
+	function Barlink(options)
+	{
+		this.options = options;
+
+		this.socket = null;
+		this.connect_errors = 0;
+
+		var self = this;
+
+		this.connect = function()
+		{
+			socket = new WebSocket('ws://localhost:1234/ws/' + self.options.path);
+			socket.onopen = function(evt)
+			{
+				self.connect_errors = 0;
+				$('#connection').removeClass('fail').addClass('ok');
+				if(self.options.onopen)
+				{
+					self.options.onopen(evt);
+				}
+			}
+			socket.onclose = function(evt)
+			{
+				$('#connection').removeClass('ok').addClass('fail');
+				self.connect_errors++;
+				if(self.connect_errors < 5)
+				{
+					setTimeout(self.reconnect, 1000);
+				}
+				if(self.options.onclose)
+				{
+					self.options.onclose(evt);
+				}
+			}
+			socket.onmessage = function(evt)
+			{
+				if(self.options.onmessage)
+				{
+					self.options.onmessage(evt.data)
+				}
+			}
+			socket.onerror = function(evt)
+			{
+				if(self.options.onerror)
+				{
+					self.options.onerror(evt);
+				}
+			}
+		}
+		this.reconnect = function()
+		{
+			self.connect();
+		}
+		this.send = function(data)
+		{
+			if(socket)
+			{
+				socket.send(JSON.stringify(data))
+			}
+		}
+		this.close = function()
+		{
+			if(socket)
+			{
+				socket.close()
+			}
+		}
+	}
+
+	return Barlink;
+})();

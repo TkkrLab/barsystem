@@ -81,3 +81,27 @@ input[type=number] {
 	color: red;
 	font-weight: bold;
 }
+
+#connection {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1001;
+}
+#connection.ok div {
+	border-color: green;
+	background-color: green;
+}
+#connection.fail div {
+	border-color: red;
+	background-color: red;
+}
+#connection div {
+	border-width: 1px;
+	border-style: solid;
+	border-color: transparent;
+	border-radius: 10px;
+	width: 20px;
+	height: 20px;
+	background-color: transparent;
+}
