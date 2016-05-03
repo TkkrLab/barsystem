@@ -106,7 +106,7 @@ var cart = {{cart.js|safe}};
 <!-- products -->
 <div id="products" class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
 	<div role="tabpanel">
-		<ul class="nav nav-pills" role="tablist">
+		<ul class="nav nav-tabs nav-justified" role="tablist">
 {% comment %}
 			<li class="active"><a data-toggle="tab" data-target="#category_popular">{% trans 'Popular' %}</a></li>
 {% endcomment %}
@@ -121,6 +121,7 @@ var cart = {{cart.js|safe}};
 			{% endfor %}
 			<li><a data-toggle="tab" data-target="#category_special">{% trans 'Special products' %}</a></li>
 		</ul>
+		<br>
 		<div id="tabContent" class="tab-content">
 {% comment %}
 			<div class="tab-pane active" id="category_popular">
