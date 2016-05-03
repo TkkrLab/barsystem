@@ -47,6 +47,11 @@ $(function(){
 		if(barlink) barlink.send({action:'drawer'})
 	})
 	{% endif %}
+	$('#btn-cash-deposit').click(function()
+	{
+		var cash_deposit_id = {{ cash_deposit.id }};
+		add_cart(cash_deposit_id, 1);
+	})
 	$('#btn-checkout').click(function()
 	{
 		$('#cart').submit();
