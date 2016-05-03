@@ -11,6 +11,9 @@ import sys
 import threading
 import time
 import logging
+import json
+
+from receipts import ReceiptPrinter
 
 
 def readlines(sock, recv_buffer=4096, delim='\n'):
@@ -70,16 +73,16 @@ class WebSocketConnection:
 
     def handshake(self):
         reply = ''
-        request_path = ''
-        headers = {}
+        self.request_path = ''
+        self.headers = {}
         for line in readlines(self.socket, delim='\r\n'):
             # print('RECV: {}'.format(line))
             if len(line) == 0:
                 break
-            if request_path == '':
+            if self.request_path == '':
                 m = re.match('^GET (.+) HTTP/1.1', line)
                 if m:
-                    request_path = m.groups(1)[0]
+                    self.request_path = m.groups(1)[0]
                 else:
                     self.write('HTTP/1.1 405 Method not allowed\r\n\r\n')
                     return 405
@@ -87,15 +90,15 @@ class WebSocketConnection:
             if not ':' in line:
                 continue
             key, value = header_split(line)
-            headers[key] = value
+            self.headers[key] = value
             # print(key, value)
             # if line.startswith('Sec-WebSocket'):
             #     print(line)
             # if key == 'Sec-WebSocket-Key':
         
-        if headers.get('Sec-WebSocket-Version', None) != '13':
+        if self.headers.get('Sec-WebSocket-Version', None) != '13':
             return False
-        key = headers.get('Sec-WebSocket-Key', None)
+        key = self.headers.get('Sec-WebSocket-Key', None)
         if not key:
             logging.warn('KEY MISSING')
             return False
@@ -106,7 +109,7 @@ class WebSocketConnection:
             logging.warn('REPLY FAILED')
             return False
 
-        logging.info('{}:{} UPGRADING CONNECTION; {}'.format(self.addr[0], self.addr[1], request_path))
+        logging.info('{}:{} UPGRADING CONNECTION; {}'.format(self.addr[0], self.addr[1], self.request_path))
         self.write('HTTP/1.1 101 Switching Protocols\r\n')
         self.write('Upgrade: WebSocket\r\n')
         self.write('Connection: Upgrade\r\n')
@@ -123,7 +126,7 @@ class WebSocketConnection:
 
     def sendMessage(self, message='', opcode=0x01):
         opcode_str = self.opcode_map[opcode] if opcode in self.opcode_map else opcode
-        logging.info('{}:{} SEND: opcode: {}; length: {}; payload: "{}"'.format(self.remote_addr, self.remote_port, opcode_str, len(message), message))
+        logging.info('{}:{} SEND {}; opcode: {}; length: {}; payload: "{}"'.format(self.remote_addr, self.remote_port, self.request_path, opcode_str, len(message), message))
         data = bytearray()
         data.append(0x80 | (opcode & 0x0F)) # FIN
         
@@ -192,7 +195,7 @@ class WebSocketConnection:
                         payload = payload.decode('utf-8')
                     except UnicodeDecodeError:
                         pass
-            logging.info('{}:{} RECV: opcode: {}; length: {}; payload: "{}"'.format(self.remote_addr, self.remote_port, opcode_str, length, payload))
+            logging.info('{}:{} RECV {}; opcode: {}; length: {}; payload: "{}"'.format(self.remote_addr, self.remote_port, self.request_path, opcode_str, length, payload))
 
             if opcode == self.OPCODE_CLOSE:
                 raise SocketClosedException
@@ -260,14 +263,16 @@ class WebSocketServer(threading.Thread):
                 if msg != False:
                     opcode, payload = msg
                     if opcode == WebSocketConnection.OPCODE_TEXT:
-                        conn.sendMessage(payload, WebSocketConnection.OPCODE_TEXT)
+                        self.process_text_message(conn.request_path, payload)
+                        # conn.sendMessage(payload, WebSocketConnection.OPCODE_TEXT)
             self.cleanConnections()
 
             if time.time() >= next_ping:
                 # self.sendAll(message='ping o\'clock', opcode=0x09)
                 next_ping = time.time() + ping_timeout
 
-            time.sleep(0.01)
+    def process_text_message(self, conn, payload):
+        pass
 
     def stop(self):
         logging.info('STOP')
@@ -291,6 +296,32 @@ class WebSocketServer(threading.Thread):
 
     def cleanConnections(self):
         self.conn[:] = [c for c in self.conn if not c.error]
+
+class Barlink(WebSocketServer):
+    def __init__(self, *args, printer=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.printer = printer
+
+    def process_text_message(self, conn, payload):
+        try:
+            data = json.loads(payload)
+        except json.JSONDecodeError:
+            logging.exception('Failed to parse received payload as JSON.')
+            return
+        if not 'action' in data:
+            logging.warning('Invalid JSON: action field not set.')
+            return
+        action = data['action']
+        if action == 'print':
+            if self.printer:
+                pass
+        elif action == 'drawer':
+            if self.printer:
+                self.printer.open_drawer()
+        elif action == 'connect':
+            pass
+        else:
+            logging.warning('Invalid action: "{}"'.format(action))
 
 import serial
 import serial.tools.list_ports
@@ -429,7 +460,9 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
     serial_monitor = SerialMonitor()
     console_monitor = ConsoleMonitor()
-    s = WebSocketServer([serial_monitor, console_monitor])
+
+    receipt_printer = ReceiptPrinter('/dev/pts/3')
+    s = Barlink([serial_monitor, console_monitor], printer=receipt_printer)
     try:
         s.start()
         s.join()
