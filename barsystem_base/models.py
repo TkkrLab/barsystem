@@ -78,7 +78,7 @@ class Person(models.Model):
 
 class Token(models.Model):
     person = models.ForeignKey('Person', related_name='person')
-    value  = models.CharField(max_length=32)
+    value  = models.CharField(max_length=64)
     type   = models.CharField(max_length=32)
 
 class Journal(models.Model):
