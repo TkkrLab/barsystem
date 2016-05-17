@@ -6,3 +6,4 @@ Pillow
 pyserial
 # pyudev
 uwsgi
+paho-mqtt
