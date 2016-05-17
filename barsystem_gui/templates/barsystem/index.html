@@ -21,6 +21,14 @@ $(function(){
 		}
 	});
 	barlink.connect();
+
+	$('#connection').click(function()
+	{
+		if($(this).hasClass('fail'))
+		{
+			barlink.reconnect();
+		}
+	});
 });
 </script>
 {% endblock %}
