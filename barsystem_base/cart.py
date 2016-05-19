@@ -27,7 +27,7 @@ class Cart(dict):
     def can_checkout(self):
         if len(self) == 0:
             return False
-        if self.person:
+        if self.person and not self.person.member:
             total = Decimal(0.0)
             for product_id, quantity in self.items():
                 total += Product.objects.get(id=product_id).get_price(self.person, quantity)
