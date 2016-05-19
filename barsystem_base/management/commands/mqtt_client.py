@@ -6,6 +6,9 @@ from barsystem_base.models import Token
 
 from decimal import Decimal
 
+def make_reply(client_id, response, *args):
+    return ','.join([client_id, response] + list(args))
+
 def on_connect(client, userdata, flags, rc):
     # print('on_connect {} {} {}'.format( userdata, flags, rc))
     client._easy_log(mqtt.MQTT_LOG_INFO, 'Connected, subscribing to topic "{}"'.format(settings.MQTT_TOPIC))
@@ -37,24 +40,21 @@ def on_message(client, userdata, message):
         client._easy_log(mqtt.MQTT_LOG_INFO, 'saldo request: {}'.format(button_hash))
         try:
             token = Token.objects.get(type='sha256', value=button_hash)
-            saldo = token.person.amount
-            username = token.person.nick_name
+            reply = make_reply(
+                client_id,
+                'rp_saldo',
+                '{:.2f}'.format(token.person.amount),
+                str(token.person.nick_name)
+            )
         except Token.DoesNotExist:
-            saldo = Decimal(0.0)
-            username = None
-        reply = ','.join([
-            client_id,
-            'rp_saldo',
-            '{:.2f}'.format(saldo),
-            str(username)
-        ])
+            reply = make_reply(client_id, 'rp_error', 'Unknown iButton')
         client._easy_log(mqtt.MQTT_LOG_INFO, 'saldo_reply: {}'.format(reply))
         client.publish(message.topic, reply)
     elif command == 'connect':
         client.publish(message.topic, ','.join([
             client_id,
             'rp_setmessage',
-            'System connected'
+            'Welcome, btn plz'
         ]))
     else:
         client._easy_log(
