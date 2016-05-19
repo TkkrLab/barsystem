@@ -8,6 +8,7 @@ from decimal import Decimal
 
 def on_connect(client, userdata, flags, rc):
     # print('on_connect {} {} {}'.format( userdata, flags, rc))
+    print('Connected, subscribing to topic "{}"'.format(settings.MQTT_TOPIC))
     client.subscribe(settings.MQTT_TOPIC)
 
 def on_message(client, userdata, message):
@@ -26,7 +27,7 @@ def on_message(client, userdata, message):
         return
     if command == 'rq_saldo':
         button_hash = args[0]
-        # print('saldo request:', button_hash)
+        print('saldo request:', button_hash)
         try:
             token = Token.objects.get(type='sha256', value=button_hash)
             saldo = token.person.amount
@@ -41,7 +42,7 @@ def on_message(client, userdata, message):
             str(username)
         ])
         client.publish(message.topic, reply)
-        # print('saldo_reply: ', reply)
+        print('saldo_reply: ', reply)
 
 def on_log(client, userdata, level, buf):
     print('on_log[{}] "{}"'.format(level, buf))
