@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Person, Product, ProductCategory, Journal, Token
+from .models import Person, Product, ProductCategory, Journal, Token, VendingMachineProduct
 import barsystem_base.functions
 
 @admin.register(Person)
@@ -29,3 +29,7 @@ class JournalAdmin(admin.ModelAdmin):
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
     list_display = ('person', 'type', 'value')
+
+@admin.register(VendingMachineProduct)
+class VendingMachineProductAdmin(admin.ModelAdmin):
+    pass

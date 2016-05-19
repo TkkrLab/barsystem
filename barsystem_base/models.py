@@ -101,3 +101,10 @@ class Journal(models.Model):
     class Meta:
         verbose_name = _('journal entry')
         verbose_name_plural = _('journal entries')
+
+class VendingMachineProduct(models.Model):
+    product = models.ForeignKey('Product')
+    code    = models.CharField(max_length=10)
+
+    def __str__(self):
+        return '{}: {}'.format(self.product, self.code)
