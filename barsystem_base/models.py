@@ -105,6 +105,7 @@ class Journal(models.Model):
 class VendingMachineProduct(models.Model):
     product = models.ForeignKey('Product')
     code    = models.CharField(max_length=10)
+    virtual = models.BooleanField(default=False)
 
     def __str__(self):
         return '{}: {}'.format(self.product, self.code)
