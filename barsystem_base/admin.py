@@ -32,4 +32,5 @@ class TokenAdmin(admin.ModelAdmin):
 
 @admin.register(VendingMachineProduct)
 class VendingMachineProductAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('code', 'product')
+    ordering = ('code', )
