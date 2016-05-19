@@ -2,7 +2,8 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 import paho.mqtt.client as mqtt
 
-from barsystem_base.models import Token
+from barsystem_base.models import Token, VendingMachineProduct
+from barsystem_base.cart import Cart
 
 from decimal import Decimal
 
@@ -29,6 +30,9 @@ def on_message(client, userdata, message):
     except ValueError:
         client._easy_log(mqtt.MQTT_LOG_ERR, 'Error unpacking args')
         return
+    process_cmd(client, message.topic, client_id, command, *args)
+
+def process_cmd(client, topic, client_id, command, *args):
     if client_id != settings.MQTT_CLIENT_ID:
         client._easy_log(mqtt.MQTT_LOG_ERR, 'Error: invalid client_id: "{}"'.format(client_id))
         return
@@ -39,7 +43,7 @@ def on_message(client, userdata, message):
         button_hash = args[0]
         client._easy_log(mqtt.MQTT_LOG_INFO, 'saldo request: {}'.format(button_hash))
         try:
-            token = Token.objects.get(type='sha256', value=button_hash)
+            token = Token.objects.get(type='sha256', value=button_hash, person__active=True)
             reply = make_reply(
                 client_id,
                 'rp_saldo',
@@ -47,15 +51,71 @@ def on_message(client, userdata, message):
                 str(token.person.nick_name)
             )
         except Token.DoesNotExist:
-            reply = make_reply(client_id, 'rp_error', 'Unknown iButton')
+            reply = make_reply(
+                client_id,
+                'rp_error',
+                'Unknown iButton'
+            )
         client._easy_log(mqtt.MQTT_LOG_INFO, 'saldo_reply: {}'.format(reply))
-        client.publish(message.topic, reply)
+        client.publish(topic, reply)
+
+    elif command == 'rq_vend':
+        if len(args) != 2:
+            client._easy_log(mqtt.MQTT_LOG_ERR, 'Error: invalid args')
+            return
+        try:
+            button_hash, code = args
+        except ValueError:
+            client._easy_log(mqtt.MQTT_LOG_ERR, 'Error: Invalid args')
+            return
+        try:
+            token = Token.objects.get(type='sha256', value=button_hash, person__active=True)
+        except Token.DoesNotExist:
+            client.publish(
+                topic,
+                make_reply(client_id, 'rp_error', 'Unknown iButton')
+            )
+            return
+        if token.person.special and token.person.type == 'attendant':
+            if code == '99':
+                client.publish(
+                    topic,
+                    make_reply(client_id, 'rp_passthrough')
+                )
+                return
+        try:
+            vending_product = VendingMachineProduct.objects.get(code=code)
+            product = vending_product.product
+        except VendingMachineProduct.DoesNotExist:
+            client.publish(
+                topic,
+                make_reply(client_id, 'rp_error', 'Invalid code!')
+            )
+            return
+
+        cart = Cart(person=token.person)
+        cart.add_product(product, 1)
+        success = cart.checkout()
+        if not success:
+            client.publish(
+                topic,
+                make_reply(client_id, 'rp_error', 'Transaction failed')
+            )
+            return
+
+        client.publish(
+            topic,
+            make_reply(client_id, 'rp_vend', code)
+        )
+        return
+
     elif command == 'connect':
-        client.publish(message.topic, ','.join([
+        client.publish(topic, make_reply(
             client_id,
             'rp_setmessage',
             'Welcome, btn plz'
-        ]))
+        ))
+
     else:
         client._easy_log(
             mqtt.MQTT_LOG_INFO,
