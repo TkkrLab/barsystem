@@ -119,7 +119,9 @@ var cart = {{cart.js|safe}};
 			{% endif %}
 			</li>
 			{% endfor %}
+{% comment %}
 			<li><a data-toggle="tab" data-target="#category_special">{% trans 'Special products' %}</a></li>
+{% endcomment %}
 		</ul>
 		<br>
 		<div id="tabContent" class="tab-content">
@@ -138,12 +140,13 @@ var cart = {{cart.js|safe}};
 			{% endwith %}
 			</div>
 			{% endfor %}
-
+{% comment %}
 			<div class="tab-pane" id="category_special">
 			{% with products=special_products %}
 			{% include 'barsystem/products.inc.html' %}
 			{% endwith %}
 			</div>
+{% endcomment %}
 		</div>
 	</div>
 </div>
