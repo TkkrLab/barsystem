@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 import paho.mqtt.client as mqtt
 
-from barsystem_base.models import Token, VendingMachineProduct
+from barsystem_base.models import Person, Token, VendingMachineProduct
 from barsystem_base.cart import Cart
 
 from decimal import Decimal
@@ -39,7 +39,30 @@ def process_cmd(client, topic, client_id, command, *args):
     if command.startswith('rp_'):
         # ignore response messages
         pass
+
+    elif command == 'rq_code':
+        if len(args) != 1:
+            return
+        code = args[0]
+        try:
+            person = Person.objects.get(active=True, member=False, id=code)
+            reply = make_reply(
+                client_id,
+                'rp_saldo',
+                '{:.2f}'.format(person.amount),
+                str(person.nick_name)
+            )
+        except Person.DoesNotExist:
+            reply = make_reply(
+                client_id,
+                'rp_error',
+                'Invalid user'
+            )
+        client.publish(topic, reply)
+
     elif command == 'rq_saldo':
+        if len(args) != 1:
+            return
         button_hash = args[0]
         client._easy_log(mqtt.MQTT_LOG_INFO, 'saldo request: {}'.format(button_hash))
         try:
@@ -68,14 +91,22 @@ def process_cmd(client, topic, client_id, command, *args):
         except ValueError:
             client._easy_log(mqtt.MQTT_LOG_ERR, 'Error: Invalid args')
             return
-        try:
-            token = Token.objects.get(type='sha256', value=button_hash, person__active=True)
-        except Token.DoesNotExist:
+        if button_hash.startswith('guest_'):
+            guest_id = button_hash.split('_')[1]
             client.publish(
                 topic,
-                make_reply(client_id, 'rp_error', 'Unknown iButton')
+                make_reply(client_id, 'rp_error', 'Hoi guest {}'.format(guest_id))
             )
             return
+        else:
+            try:
+                token = Token.objects.get(type='sha256', value=button_hash, person__active=True)
+            except Token.DoesNotExist:
+                client.publish(
+                    topic,
+                    make_reply(client_id, 'rp_error', 'Unknown iButton')
+                )
+                return
         if token.person.special and token.person.type == 'attendant':
             if code == '99':
                 client.publish(
@@ -100,6 +131,13 @@ def process_cmd(client, topic, client_id, command, *args):
             client.publish(
                 topic,
                 make_reply(client_id, 'rp_error', 'Transaction failed')
+            )
+            return
+
+        if vending_product.virtual:
+            client.publish(
+                topic,
+                make_reply(client_id, 'rp_error', 'OK: {}'.format(product.name))
             )
             return
 

@@ -32,5 +32,5 @@ class TokenAdmin(admin.ModelAdmin):
 
 @admin.register(VendingMachineProduct)
 class VendingMachineProductAdmin(admin.ModelAdmin):
-    list_display = ('code', 'product')
+    list_display = ('code', 'product', 'virtual')
     ordering = ('code', )
