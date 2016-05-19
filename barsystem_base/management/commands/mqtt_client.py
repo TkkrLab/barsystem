@@ -8,26 +8,33 @@ from decimal import Decimal
 
 def on_connect(client, userdata, flags, rc):
     # print('on_connect {} {} {}'.format( userdata, flags, rc))
-    print('Connected, subscribing to topic "{}"'.format(settings.MQTT_TOPIC))
+    client._easy_log(mqtt.MQTT_LOG_INFO, 'Connected, subscribing to topic "{}"'.format(settings.MQTT_TOPIC))
     client.subscribe(settings.MQTT_TOPIC)
 
 def on_message(client, userdata, message):
-    if message.topic != settings.MQTT_TOPIC:
-        return
-    # print("Received message '" + str(message.payload) + "' on topic '"
-    #     + message.topic + "' with QoS " + str(message.qos))
     try:
         args = message.payload.decode('ascii').split(',')
     except UnicodeDecodeError:
+        client._easy_log(mqtt.MQTT_LOG_ERR, 'Error: cannot decode payload "{}"!'.format(message.payload))
         return
-    if len(args) < 3:
+    client._easy_log(mqtt.MQTT_LOG_INFO, 'args: {}'.format(args))
+    if len(args) < 2:
+        client._easy_log(mqtt.MQTT_LOG_ERR, 'Error: not enough args')
         return
-    client_id, command, *args = args
-    if not client_id.startswith('candymachine_'):
+    try:
+        client_id, command, *args = args
+    except ValueError:
+        client._easy_log(mqtt.MQTT_LOG_ERR, 'Error unpacking args')
         return
-    if command == 'rq_saldo':
+    if client_id != settings.MQTT_CLIENT_ID:
+        client._easy_log(mqtt.MQTT_LOG_ERR, 'Error: invalid client_id: "{}"'.format(client_id))
+        return
+    if command.startswith('rp_'):
+        # ignore response messages
+        pass
+    elif command == 'rq_saldo':
         button_hash = args[0]
-        print('saldo request:', button_hash)
+        client._easy_log(mqtt.MQTT_LOG_INFO, 'saldo request: {}'.format(button_hash))
         try:
             token = Token.objects.get(type='sha256', value=button_hash)
             saldo = token.person.amount
@@ -41,18 +48,32 @@ def on_message(client, userdata, message):
             '{:.2f}'.format(saldo),
             str(username)
         ])
+        client._easy_log(mqtt.MQTT_LOG_INFO, 'saldo_reply: {}'.format(reply))
         client.publish(message.topic, reply)
-        print('saldo_reply: ', reply)
+    elif command == 'connect':
+        client.publish(message.topic, ','.join([
+            client_id,
+            'rp_setmessage',
+            'System connected'
+        ]))
+    else:
+        client._easy_log(
+            mqtt.MQTT_LOG_INFO,
+            'Received unknown command: "{}" with args "{}"'.format(command, args)
+        )
 
 def on_log(client, userdata, level, buf):
-    print('on_log[{}] "{}"'.format(level, buf))
+    if userdata['verbosity'] > 1:
+        print('on_log[{}] "{}"'.format(level, buf))
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        client = mqtt.Client()
+        client = mqtt.Client(userdata={
+            'verbosity': kwargs['verbosity']
+        })
         client.on_connect = on_connect
         client.on_message = on_message
-        # client.on_log = on_log
+        client.on_log = on_log
         client.connect_async(settings.MQTT_BROKER)
         try:
             client.loop_forever()
