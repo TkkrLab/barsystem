@@ -33,7 +33,7 @@ def on_message(client, userdata, message):
     process_cmd(client, message.topic, client_id, command, *args)
 
 def process_cmd(client, topic, client_id, command, *args):
-    if client_id != settings.MQTT_CLIENT_ID:
+    if client_id not in settings.MQTT_ALLOWED_CLIENTS:
         client._easy_log(mqtt.MQTT_LOG_ERR, 'Error: invalid client_id: "{}"'.format(client_id))
         return
     if command.startswith('rp_'):
