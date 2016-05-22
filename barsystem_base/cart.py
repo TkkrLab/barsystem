@@ -59,7 +59,6 @@ class Cart(dict):
                     recipient.amount -= total
                     if not test:
                         recipient.save()
-            print(recipient.amount)
         except Product.DoesNotExist:
             raise
 
