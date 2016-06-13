@@ -46,7 +46,7 @@ input[type=number] {
 	cursor: pointer;
 	padding: 2px;
 	padding-left: 4px;
-	min-height: 62px;
+	min-height: 80px;
 }
 .product:hover > div {
 	border-color: #ee0;

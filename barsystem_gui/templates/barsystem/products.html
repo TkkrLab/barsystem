@@ -105,50 +105,14 @@ var cart = {{cart.js|safe}};
 
 <!-- products -->
 <div id="products" class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
-	<div role="tabpanel">
-		<ul class="nav nav-tabs nav-justified" role="tablist">
-{% comment %}
-			<li class="active"><a data-toggle="tab" data-target="#category_popular">{% trans 'Popular' %}</a></li>
-{% endcomment %}
-			{% for group in products_by_category %}
-			<li role="presentation"{% if forloop.first %} class="active"{%endif%}>
-			{% if group.grouper == None %}
-			<a role="tab" data-toggle="tab" data-target="#category_unsorted">{% trans 'Unsorted' %}</a>
-			{% else %}
-			<a role="tab" data-toggle="tab" data-target="#category_{{group.grouper.id}}">{{group.grouper.name}}</a>
-			{% endif %}
-			</li>
-			{% endfor %}
-{% comment %}
-			<li><a data-toggle="tab" data-target="#category_special">{% trans 'Special products' %}</a></li>
-{% endcomment %}
-		</ul>
-		<br>
-		<div id="tabContent" class="tab-content">
-{% comment %}
-			<div class="tab-pane active" id="category_popular">
-			{% with products=popular_products %}
-			{% include 'barsystem/products.inc.html' %}
-			{% endwith %}
-			</div>
-{% endcomment %}
-
-			{% for group in products_by_category %}
-			<div class="tab-pane{% if forloop.first %} active{%endif%}" id="category_{% if group.grouper == None %}unsorted{% else %}{{group.grouper.id}}{% endif %}">
-			{% with products=group.list %}
-			{% include 'barsystem/products.inc.html' %}
-			{% endwith %}
-			</div>
-			{% endfor %}
-{% comment %}
-			<div class="tab-pane" id="category_special">
-			{% with products=special_products %}
-			{% include 'barsystem/products.inc.html' %}
-			{% endwith %}
-			</div>
-{% endcomment %}
+	{% for group in products_by_category %}
+		<h2>{% if group.grouper == None %}{% trans 'Unsorted' %}{% else %}{{group.grouper.name}}{% endif %}</h2>
+		<div class="col-md-12">
+		{% with products=group.list %}
+		{% include 'barsystem/products.inc.html' %}
+		{% endwith %}
 		</div>
-	</div>
+	{% endfor %}
 </div>
 <!-- end products -->
 
