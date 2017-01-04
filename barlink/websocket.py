@@ -459,8 +459,6 @@ class SerialMonitor(Monitor):
             data = data.decode('ascii')
         except AsciiDecodeError as e:
             print('AsciiDecodeError: {}'.format(e))
-        if data[0] == '{':
-            data = data[1:]
         data = data.strip()
         if len(data) == 0:
             return
