@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.utils import timezone
 from django.db import transaction
 
+
 class Cart(dict):
     def __init__(self, data=None, person=None):
         if data:
@@ -34,6 +35,7 @@ class Cart(dict):
             return self.person.balance - total >= self.person.balance_limit
 
         return True
+
     def checkout(self, test=False):
         if not self.can_checkout():
             return False
