@@ -2,19 +2,22 @@
 
 import base64
 import hashlib
+import json
+import os
+# import pyudev
 import re
 import select
+import serial
+import serial.tools.list_ports
 import socket
-import ssl
 import struct
+import ssl
 import sys
 import threading
 import time
 import logging
-import json
-import os
 
-from receipts import ReceiptPrinter
+from barlink.receipts import ReceiptPrinter
 
 
 def readlines(sock, recv_buffer=4096, delim='\n'):
@@ -29,11 +32,14 @@ def readlines(sock, recv_buffer=4096, delim='\n'):
             yield line
     return
 
+
 class SocketClosedException(Exception):
     pass
 
+
 def header_split(line):
     return map(lambda x: x.strip(), line.split(':', 1))
+
 
 class WebSocketConnection:
     WEBSOCK_GUID = b'258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
@@ -61,16 +67,15 @@ class WebSocketConnection:
     @property
     def addr(self):
         return self.remote_addr, self.remote_port
-    
+
     def upgrade(self):
         result = self.handshake()
-        if result == True:
+        if result is True:
             return True
         else:
-            if result == False:
+            if result is False:
                 self.handshakeReject()
             return False
-
 
     def handshake(self):
         reply = ''
@@ -88,7 +93,7 @@ class WebSocketConnection:
                     self.write('HTTP/1.1 405 Method not allowed\r\n\r\n')
                     return 405
                 continue
-            if not ':' in line:
+            if ':' not in line:
                 continue
             key, value = header_split(line)
             self.headers[key] = value
@@ -96,7 +101,7 @@ class WebSocketConnection:
             # if line.startswith('Sec-WebSocket'):
             #     print(line)
             # if key == 'Sec-WebSocket-Key':
-        
+
         if self.headers.get('Sec-WebSocket-Version', None) != '13':
             return False
         key = self.headers.get('Sec-WebSocket-Key', None)
@@ -104,7 +109,9 @@ class WebSocketConnection:
             logging.warn('KEY MISSING')
             return False
 
-        reply = base64.b64encode(hashlib.sha1(key.encode('ascii') + self.WEBSOCK_GUID).digest()).decode('ascii')
+        reply = base64.b64encode(
+            hashlib.sha1(key.encode('ascii') + self.WEBSOCK_GUID).digest()
+            ).decode('ascii')
 
         if len(reply) == 0:
             logging.warn('REPLY FAILED')
@@ -127,10 +134,16 @@ class WebSocketConnection:
 
     def sendMessage(self, message='', opcode=0x01):
         opcode_str = self.opcode_map[opcode] if opcode in self.opcode_map else opcode
-        logging.info('{}:{} SEND {}; opcode: {}; length: {}; payload: "{}"'.format(self.remote_addr, self.remote_port, self.request_path, opcode_str, len(message), message))
+        logging.info('{}:{} SEND {}; opcode: {}; length: {}; payload: "{}"'.format(
+            self.remote_addr,
+            self.remote_port,
+            self.request_path,
+            opcode_str,
+            len(message),
+            message))
         data = bytearray()
-        data.append(0x80 | (opcode & 0x0F)) # FIN
-        
+        data.append(0x80 | (opcode & 0x0F))  # FIN
+
         length = len(message)
 
         if length <= 125:
@@ -181,7 +194,7 @@ class WebSocketConnection:
                 for i in range(len(payload)):
                     payload2.append(payload[i] ^ masking_key[i % 4])
                 payload = payload2
-            
+
             opcode_str = opcode
             if opcode in self.opcode_map:
                 opcode_str = self.opcode_map[opcode]
@@ -196,7 +209,13 @@ class WebSocketConnection:
                         payload = payload.decode('utf-8')
                     except UnicodeDecodeError:
                         pass
-            logging.info('{}:{} RECV {}; opcode: {}; length: {}; payload: "{}"'.format(self.remote_addr, self.remote_port, self.request_path, opcode_str, length, payload))
+            logging.info('{}:{} RECV {}; opcode: {}; length: {}; payload: "{}"'.format(
+                self.remote_addr,
+                self.remote_port,
+                self.request_path,
+                opcode_str,
+                length,
+                payload))
 
             if opcode == self.OPCODE_CLOSE:
                 raise SocketClosedException
@@ -207,13 +226,12 @@ class WebSocketConnection:
             self.socket.close()
             return False
 
-
     def close(self):
         self.socket.close()
 
 
 class WebSocketServer(threading.Thread):
-    def __init__(self, monitors, ssl=False):
+    def __init__(self, monitors, use_ssl=False):
         super().__init__()
 
         self._stop_event = threading.Event()
@@ -224,7 +242,7 @@ class WebSocketServer(threading.Thread):
             monitor.start()
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if ssl:
+        if use_ssl:
             self.sock = ssl.wrap_socket(self.sock, server_side=True, certfile='bar.pem', keyfile='bar.pem')
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(('localhost', 1234))
@@ -261,7 +279,7 @@ class WebSocketServer(threading.Thread):
             for sock in r:
                 conn = [conn for conn in self.conn if conn.socket == sock][0]
                 msg = conn.receiveMessage()
-                if msg != False:
+                if msg is not False:
                     opcode, payload = msg
                     if opcode == WebSocketConnection.OPCODE_TEXT:
                         self.process_text_message(conn.request_path, payload)
@@ -280,7 +298,7 @@ class WebSocketServer(threading.Thread):
         for monitor in self.monitors:
             monitor.stop()
         for conn in self.conn:
-            conn.sendMessage(opcode=WebSocketConnection.OPCODE_CLOSE) # opcode close
+            conn.sendMessage(opcode=WebSocketConnection.OPCODE_CLOSE)  # opcode close
         self._stop_event.set()
 
     def on_message(self, message):
@@ -292,11 +310,12 @@ class WebSocketServer(threading.Thread):
                 conn.sendMessage(message, opcode)
             except Exception as e:
                 print(e)
-                c.error = True
+                self.error = True
         self.cleanConnections()
 
     def cleanConnections(self):
         self.conn[:] = [c for c in self.conn if not c.error]
+
 
 class Barlink(WebSocketServer):
     def __init__(self, *args, printer=None, **kwargs):
@@ -309,12 +328,12 @@ class Barlink(WebSocketServer):
         except json.JSONDecodeError:
             logging.exception('Failed to parse received payload as JSON.')
             return
-        if not 'action' in data:
+        if 'action' not in data:
             logging.warning('Invalid JSON: action field not set.')
             return
         action = data['action']
         if action == 'receipt':
-            if not 'products' in data:
+            if 'products' not in data:
                 logging.warning('Invalid request: receipt with no products')
                 return
             if 'customer_name' in data:
@@ -330,6 +349,7 @@ class Barlink(WebSocketServer):
             pass
         else:
             logging.warning('Invalid action: "{}"'.format(action))
+
 
 def print_receipt(printer, customer_name, products):
     printer.init()
@@ -367,15 +387,9 @@ def print_receipt(printer, customer_name, products):
 
     printer.cut(0)
 
-import serial
-import serial.tools.list_ports
-import select
-import threading
-import time
-# import pyudev
 
 class PortDetect:
-    def __init__(self): #, notify_event, vid='16c0', pid='0483'):
+    def __init__(self):  # , notify_event, vid='16c0', pid='0483'):
         # self.devices = [[vid, pid]]
         # self.notify_event = notify_event
         context = pyudev.Context()
@@ -396,14 +410,17 @@ class PortDetect:
         # import sys
         # sys.exit(0)
 
+
 class Monitor(threading.Thread):
     def __init__(self):
         super().__init__()
         self._stop_event = threading.Event()
         self.server = None
         self.buffer = b''
+
     def stop(self):
         self._stop_event.set()
+
     def set_server(self, server):
         self.server = server
 
@@ -430,7 +447,7 @@ class SerialMonitor(Monitor):
             pass
         try:
             # print('Connecting to {}...'.format(self.port))
-            self.serial = serial.Serial(self.port, 19200, timeout = 0)
+            self.serial = serial.Serial(self.port, 19200, timeout=0)
             return True
         except Exception as e:
             # print('Error in port {}: {}'.format(self.port, e))
@@ -453,12 +470,12 @@ class SerialMonitor(Monitor):
                 pass
                 # print('No ports found!')
                 return False
-        
+
     def processInput(self, data):
         try:
             data = data.decode('ascii')
-        except AsciiDecodeError as e:
-            print('AsciiDecodeError: {}'.format(e))
+        except UnicodeDecodeError as e:
+            print('UnicodeDecodeError: {}'.format(e))
         data = data.strip()
         if len(data) == 0:
             return
@@ -468,10 +485,10 @@ class SerialMonitor(Monitor):
             data = 'ibutton{' + old_ibutton.group(1) + '}'
         self.notify(data)
 
-    def run( self ):
+    def run(self):
         while not self._stop_event.is_set():
             try:
-                r, w, e = select.select([self.serial],[],[], 0.01)
+                r, w, e = select.select([self.serial], [], [], 0.01)
                 if len(r) > 0:
                     try:
                         self.buffer += self.serial.read()
@@ -487,10 +504,11 @@ class SerialMonitor(Monitor):
         if self.serial:
             self.serial.close()
 
+
 class ConsoleMonitor(Monitor):
     def run(self):
         while not self._stop_event.is_set():
-            while sys.stdin in select.select([sys.stdin],[],[], 0.1)[0]:
+            while sys.stdin in select.select([sys.stdin], [], [], 0.1)[0]:
                 line = sys.stdin.readline().strip()
                 if not line:
                     self.stop()
@@ -498,29 +516,36 @@ class ConsoleMonitor(Monitor):
                 self.notify(line)
             time.sleep(0.1)
 
-if __name__ == '__main__':
+
+def main(argv=None):
+    if not argv:
+        argv = sys.argv[1:]
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
     serial_monitor = SerialMonitor()
     console_monitor = ConsoleMonitor()
 
     try:
-        import settings
+        from barlink import settings
     except ImportError:
         logging.warning('No settings found.')
         settings = None
 
     receipt_printer = None
 
-    try:
-        if settings:
+    if settings:
+        try:
             receipt_printer = ReceiptPrinter(settings.RECEIPT_PRINTER_PORT)
-    except serial.SerialException:
-        logging.exception('Cannot connect to receipt printer')
+            logging.info('Configured receipt printer on {}.'.format(settings.RECEIPT_PRINTER_PORT))
+        except serial.SerialException:
+            logging.exception('Cannot connect to receipt printer')
 
-    print(settings, receipt_printer)
     s = Barlink([serial_monitor, console_monitor], printer=receipt_printer)
     try:
         s.start()
         s.join()
     except KeyboardInterrupt:
         s.stop()
+
+
+if __name__ == '__main__':
+    main()

@@ -1,5 +1,5 @@
 import serial
-import time
+
 
 class ReceiptPrinter:
     ALIGN_LEFT = 0
@@ -12,7 +12,6 @@ class ReceiptPrinter:
     PRINTMODE_DOUBLE_HEIGHT = 0x10
     PRINTMODE_DOUBLE_WIDTH = 0x20
     PRINTMODE_UNDERLINE = 0x80
-
 
     CMD_ESC = b'\x1B'
     CMD_GS = b'\x1D'
