@@ -1,0 +1,2 @@
+recursive-include src/barsystem/gui/static *
+recursive-include src/barsystem/gui/templates *
