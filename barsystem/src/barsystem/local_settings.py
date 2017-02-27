@@ -1,8 +1,9 @@
 from barsystem.settings import *  # NOQA
+import os
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = open(os.path.expanduser('~/.config/barsystem/secret.txt')).read()
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
