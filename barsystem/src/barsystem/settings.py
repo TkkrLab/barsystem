@@ -12,6 +12,7 @@ def gettext_noop(s):
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = os.path.expanduser('~/.config/barsystem')
 
 # Application definition
 
@@ -114,7 +115,7 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 # Settings to improve security
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 X_FRAME_OPTIONS = 'DENY'

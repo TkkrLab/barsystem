@@ -35,6 +35,9 @@ Your friendly neighbourhood barsystem.
 
 
 def send_overdrawn_mail(naughty_person, transaction_amount):
+    if not settings.EMAIL_HOST_USER or not settings.EMAIL_TARGET:
+        # logging.warning('Unable to send email')
+        return
     # person_name = '{} ({} {})'.format(naughty_person.nick_name, naughty_person.first_name, naughty_person.last_name)
     values = {
         'nickname': naughty_person.nick_name,
