@@ -14,7 +14,7 @@ To install:
   * Run `virtualenv -p python3 <location>`.
   * Activate the virtualenv (see virtualenv docs for how to activate on your shell).
 * From the source directory, run `pip install ./barsystem`
-* Run `barsystem-installer`
+* Run `barsystem-installer init`
 * For testing, run barsystem with `django-admin runserver --settings barsystem.local_settings`
 * For production, a standard nginx + uwsgi stack is recommended.
   
