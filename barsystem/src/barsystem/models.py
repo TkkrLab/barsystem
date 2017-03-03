@@ -26,12 +26,12 @@ class Product(models.Model):
     member_price = models.DecimalField(max_digits=10, decimal_places=4)
     standard_price = models.DecimalField(max_digits=10, decimal_places=4)
     type = models.CharField(max_length=100, blank=True, default='')
-    barcode = models.CharField(max_length=100, blank=True, default=None)
+    barcode = models.CharField(max_length=100, blank=True, default='')
 
     image = models.ImageField(blank=True, default=None)
     active = models.BooleanField(default=True)
     special = models.BooleanField(default=False)
-    special_id = models.CharField(max_length=50, null=True, blank=True, default=None)
+    special_id = models.CharField(max_length=50, null=True, blank=True, default='')
     quantity_type = models.CharField(max_length=100, blank=True, choices=QUANTITY_TYPE_CHOICES, default='None')
     unit = models.CharField(max_length=10, blank=True, default='')
 
@@ -56,7 +56,7 @@ class Person(models.Model):
     last_name = models.CharField(blank=True, default='', max_length=100)
     nick_name = models.CharField(max_length=100)
     amount = models.DecimalField(default=0.0, max_digits=10, decimal_places=2)
-    type = models.CharField(max_length=100, blank=True, null=True, default=None)
+    type = models.CharField(max_length=100, blank=True, default='')
 
     active = models.BooleanField(default=True)
     member = models.BooleanField(default=False)
