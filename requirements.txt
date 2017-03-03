@@ -1,9 +1,0 @@
-django
-django-translatable
-pytz
-python-dateutil
-Pillow
-pyserial
-# pyudev
-uwsgi
-paho-mqtt
