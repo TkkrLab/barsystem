@@ -14,6 +14,11 @@ def gettext_noop(s):
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_DIR = os.path.expanduser('~/.config/barsystem')
 
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY_FILE = os.path.join(CONFIG_DIR, 'secret.txt')
+SECRET_KEY = open(SECRET_KEY_FILE).read()
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -67,7 +72,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db3.sqlite3'),
+        'NAME': os.path.join(CONFIG_DIR, 'barsystem.sqlite3'),
     }
 }
 
