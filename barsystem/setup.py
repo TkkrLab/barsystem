@@ -19,9 +19,11 @@ setup(
         'pytz',
         'python-dateutil',
         'Pillow',
-        'uwsgi',
-        'paho-mqtt'
     ],
+    extras_require={
+        'uwsgi': ['uwsgi'],
+        'mqtt': ['paho-mqtt'],
+    },
 
     license='MIT',
     description='',
