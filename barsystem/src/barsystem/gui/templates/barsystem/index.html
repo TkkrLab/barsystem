@@ -34,6 +34,10 @@ $(function(){
 {% endblock %}
 {% endif %}
 
+{% block navright %}
+<span class="navbar-text">Version {{ version }}</span>
+{% endblock %}
+
 {% block content %}
 <img class="col-xs-12 col-sm-6 col-md-4" align="center" src="{% static 'img/mainpage_logo.png' %}" />
 

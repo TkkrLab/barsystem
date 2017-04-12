@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from barsystem import get_version
 from barsystem.models import Person, Product, Journal, Token
 from barsystem.functions import send_overdrawn_mail
 
@@ -113,6 +114,7 @@ class IndexView(TemplateView):
         # context['wanbetalers'] = Person.objects.filter(active=True, amount__lt=0).order_by('amount')[:5]
 
         context['bar'] = is_bar(self.request)
+        context['version'] = get_version()
 
         return context
 
