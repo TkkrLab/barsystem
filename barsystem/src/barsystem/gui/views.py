@@ -319,6 +319,18 @@ class PeopleView(TemplateView):
     template_name = 'barsystem/people.html'
     pagination_on = False
 
+    def post(self, *args, **kwargs):
+        is_attendant = self.request.session.get('attendant', False)
+        query = self.request.POST.get('nickname', None)
+        try:
+            person = Person.objects.get(nick_name=query)
+            if not person.member or is_attendant:
+                self.request.session['person_id'] = person.id
+                return HttpResponseRedirect(reverse('products'))
+        except Person.DoesNotExist:
+            messages.error(self.request, _('Name does not exist'), extra_tags=_('Error'))
+        return HttpResponseRedirect(reverse('people'))
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 

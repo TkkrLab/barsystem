@@ -13,6 +13,9 @@ $(function()
 	{
 		location.href = $(this).data('href');
 	});
+	$(function(){
+		$('#search_name').focus();
+	})
 })
 </script>
 {% endblock %}
@@ -22,7 +25,13 @@ $(function()
 
 {% block content %}
 <h4>{% trans 'Choose account' %}</h4>
-
+<form action="{% url 'people' %}" method="post">
+	{% csrf_token %}
+	<div class="form-group">
+		<label class="sr-only" for="search_name">Search name</label>
+		<input placeholder="Search name" id="search_name" name="nickname">
+	</div>
+</form>
 {% if abc_buttons %}
 <div role="tabpanel">
 <ul class="nav nav-pills" role="tablist">
