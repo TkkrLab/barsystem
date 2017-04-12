@@ -11,7 +11,7 @@ from barsystem.models import Person, Product, Journal, Token
 from barsystem.functions import send_overdrawn_mail
 
 import re
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import json
 from collections import OrderedDict
 
@@ -386,7 +386,7 @@ class CreateAccountView(TemplateView):
         account_balance = request.POST.get('deposit')
         try:
             account_balance = Decimal(account_balance)
-        except TypeError:
+        except (TypeError, InvalidOperation):
             messages.error(request, _('Invalid balance value'), extra_tags=_('Error'))
             return HttpResponseRedirect(reverse('create_account'))
 
