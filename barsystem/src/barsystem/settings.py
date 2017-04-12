@@ -11,13 +11,23 @@ def gettext_noop(s):
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_DIR = os.path.expanduser('~/.config/barsystem')
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY_FILE = os.path.join(CONFIG_DIR, 'secret.txt')
-SECRET_KEY = open(SECRET_KEY_FILE).read()
+if os.path.exists(SECRET_KEY_FILE):
+    SECRET_KEY = open(SECRET_KEY_FILE).read()
+else:
+    SECRET_KEY = 'TERRIBLE'
+    import warnings
+    class BadlyConfiguredWarning(Warning):
+        pass
+    warnings.warn(
+        'The default secret key is terrible! Run barsystem-installer!',
+        BadlyConfiguredWarning
+    )
 
 # Application definition
 
@@ -96,7 +106,7 @@ USE_L10N = True
 USE_TZ = True
 
 LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'barsystem', 'locale'),
+    os.path.join(BASE_DIR, 'locale'),
 )
 
 
