@@ -208,5 +208,11 @@ var cart = {{cart.js|safe}};
 </li>
 </template>
 <!-- end template -->
-<div id="connection"><div></div></div>
+{% endblock %}
+
+
+{% block navextra %}
+<div class="navbar-left">
+<span class="navbar-text"><span id="connection" class="connection-status glyphicon glyphicon-signal"></span></span>
+</div>
 {% endblock %}

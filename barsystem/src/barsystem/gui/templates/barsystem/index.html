@@ -76,8 +76,13 @@ Choose cash payment and pay immediately for your stuff.</li>
 </div>
 {% endblock %}
 
+{% block navextra %}
+<div class="navbar-left">
+<span class="navbar-text"><span id="connection" class="connection-status glyphicon glyphicon-signal"></span></span>
+</div>
+{% endblock %}
+
 {% block extracontent %}
-<div id="connection"><div></div></div>
 <form id="messageForm" method="post">
 {% csrf_token %}
 <input type="hidden" name="message" />
