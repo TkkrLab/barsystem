@@ -16,4 +16,8 @@ Members kunnen met hun iButton afrekenen, en bezoekers kunnen hun naam selectere
 
 Het systeem bestaat uit twee componenten, barsystem en barlink. Barsystem draait op een server en is de core die de transacties bijhoudt en de webinterface toont. Barlink is een speciaal programma dat op de computer draait met de interface, en koppelt met behulp van een WebSocket de interface aan de iButton-lezer ([TkkrLab/bar-ibutton-reader](https://github.com/TkkrLab/bar-ibutton-reader))
 
-More documentation will be written in the future™.
+# Resources
+ - [Source code](https://github.com/TkkrLab/barsystem)
+
+# Contributors
+ - jawsper
